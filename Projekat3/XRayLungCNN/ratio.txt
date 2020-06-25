@@ -1,0 +1,13 @@
+Bacteria = 2530
+	-train: 2150
+	-val: 379
+	
+Virus = 1346
+    -train: 1144
+	-val: 201
+	
+Normal = 744
+    -train: 632
+	-val: 112
+	
+Test = 690
