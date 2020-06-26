@@ -1,10 +1,14 @@
 from __future__ import print_function
 import numpy as np
 import matplotlib.pyplot as plt
-import random, copy
+import random
+import copy
 import pandas as pd
 import math
 import csv
+import seaborn as sb
+
+column_names = ['BALANCE','BALANCE_FREQUENCY','PURCHASES','ONEOFF_PURCHASES','INSTALLMENTS_PURCHASES','CASH_ADVANCE','PURCHASES_FREQUENCY','ONEOFF_PURCHASES_FREQUENCY','PURCHASES_INSTALLMENTS_FREQUENCY','CASH_ADVANCE_FREQUENCY','CASH_ADVANCE_TRX','PURCHASES_TRX','CREDIT_LIMIT','PAYMENTS','MINIMUM_PAYMENTS','PRC_FULL_PAYMENT','TENURE']
 
 '''
 class Point:
@@ -42,22 +46,15 @@ class Cluster(object):
         self.data = []  # podaci koji pripadaju ovom klasteru
 
     def recalculate_center(self):
-        # TODO 1: implementirati racunanje centra klastera
         # centar klastera se racuna kao prosecna vrednost svih podataka u klasteru
-        new_center = [0 for i in xrange(len(self.center))]
+        new_center = [0 for i in range(len(self.center))]
         for d in self.data:
-            for i in xrange(len(d)):
+            for i in range(len(d)):
                 new_center[i] += d[i]
 
         n = len(self.data)
         if n != 0:
             self.center = [x/n for x in new_center]
-
-    def __str__(self):
-        center_str = ""
-        for c in self.center:
-            center_str += str(c) + ", "
-        return "Centar: " + center_str + "\nData size: " + str(len(self.data))
 
 
 class KMeans(object):
@@ -75,18 +72,16 @@ class KMeans(object):
 
     def fit(self, data, normalize=True):
         self.data = data  # lista N-dimenzionalnih podataka
-        # TODO 4: normalizovati podatke pre primene k-means
         if normalize:
             self.data = self.normalize_data(self.data)
 
-        # TODO 1: implementirati K-means algoritam za klasterizaciju podataka
         # kada algoritam zavrsi, u self.clusters treba da bude "n_clusters" klastera (tipa Cluster)
         dimensions = len(self.data[0])
 
         # napravimo N random tacaka i stavimo ih kao centar klastera
-        for i in xrange(self.n_clusters):
+        for i in range(self.n_clusters):
             # point = self.data[int(random.uniform(0,len(self.data)))]
-            point = [random.random() for x in xrange(dimensions)]
+            point = [random.random() for x in range(dimensions)]
             self.clusters.append(Cluster(point))
 
         iter_no = 0
@@ -102,7 +97,6 @@ class KMeans(object):
                 # dodamo tacku u klaster kako bi izracunali centar
                 self.clusters[cluster_index].data.append(d)
 
-            # TODO (domaci): prosiriti K-means da stane ako se u iteraciji centri klastera nisu pomerili
             # preracunavanje centra
             not_moves = True
             for cluster in self.clusters:
@@ -115,12 +109,11 @@ class KMeans(object):
             iter_no += 1
 
     def predict(self, datum):
-        # TODO 1: implementirati odredjivanje kom klasteru odredjeni podatak pripada
         # podatak pripada onom klasteru cijem je centru najblizi (po euklidskoj udaljenosti)
         # kao rezultat vratiti indeks klastera kojem pripada
         min_distance = None
         cluster_index = None
-        for index in xrange(len(self.clusters)):
+        for index in range(len(self.clusters)):
             distance = self.euclidean_distance(datum, self.clusters[index].center)
             if min_distance is None or distance < min_distance:
                 cluster_index = index
@@ -140,7 +133,7 @@ class KMeans(object):
         # mean-std normalizacija
         cols = len(data[0])
 
-        for col in xrange(cols):
+        for col in range(cols):
             column_data = []
             for row in data:
                 column_data.append(row[col])
@@ -154,7 +147,6 @@ class KMeans(object):
         return data
 
     def sum_squared_error(self):
-        # TODO 3: implementirati izracunavanje sume kvadratne greske
         # SSE (sum of squared error)
         # unutar svakog klastera sumirati kvadrate rastojanja izmedju podataka i centra klastera
         sse = 0
@@ -168,6 +160,7 @@ class KMeans(object):
 if __name__ == "__main__":
     df = pd.read_csv(r"data/credit_card_data.csv", header=None)
     df = df.drop(df.columns[0], axis=1)
+
     list_of_rows = [list(row) for row in df.values]
     list_of_rows = list_of_rows[1:]
 
@@ -183,28 +176,72 @@ if __name__ == "__main__":
 
     # --- ODREDJIVANJE OPTIMALNOG K --- #
 
-    plt.figure()
-    sum_squared_errors = []
-    for n_clusters in range(7, 12):
+    #plt.figure()
+    #sum_squared_errors = []
+    '''
+    for n_clusters in range(7, 8):
         print("Number of clusters: " + str(n_clusters))
         kmeans = KMeans(n_clusters=n_clusters, max_iter=100)
-        kmeans.fit(float_data)
+        kmeans.fit(float_data, True)
         sse = kmeans.sum_squared_error()
-        sum_squared_errors.append(sse)
+        #sum_squared_errors.append(sse)
+    '''
+    #plt.plot(sum_squared_errors)
+    #plt.xlabel('# of clusters')
+    #plt.ylabel('SSE')
+    #plt.show()
 
-    plt.plot(sum_squared_errors)
-    plt.xlabel('# of clusters')
-    plt.ylabel('SSE')
-    plt.show()
+    print("Number of clusters: " + str(7))
+    kmeans = KMeans(n_clusters=7, max_iter=100)
+    kmeans.fit(float_data, False)
+    sse = kmeans.sum_squared_error()
+    # sum_squared_errors.append(sse)
 
     for cluster in kmeans.clusters:
         file_name = "data/cluster" + str(kmeans.clusters.index(cluster)) + ".csv"
         with open(file_name, mode='w') as cluster_file:
             cluster_writer = csv.writer(cluster_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             cluster_writer.writerow(['BALANCE','BALANCE_FREQUENCY','PURCHASES','ONEOFF_PURCHASES','INSTALLMENTS_PURCHASES','CASH_ADVANCE','PURCHASES_FREQUENCY','ONEOFF_PURCHASES_FREQUENCY','PURCHASES_INSTALLMENTS_FREQUENCY','CASH_ADVANCE_FREQUENCY','CASH_ADVANCE_TRX','PURCHASES_TRX','CREDIT_LIMIT','PAYMENTS','MINIMUM_PAYMENTS','PRC_FULL_PAYMENT','TENURE'])
-            cluster_writer.writerow(cluster.center)
             for row in cluster.data:
                 cluster_writer.writerow(row)
+
+    print("Done")
+    '''
+    Provera najmanjeg opsega po kolonama u klasteru
+    cluster0 = pd.read_csv(r"data/cluster09.csv")
+    for col_name in column_names:
+        razlika = float(cluster0[col_name].max()) - float(cluster0[col_name].min())
+        print(razlika)
+
+    Analiza dobijenih podataka
+    df = pd.read_csv(r"data/credit_card_data.csv")
+    print("Heatmap")
+    # Compute the correlation matrix
+    corr = df.corr()
+
+    # Generate a mask for the upper triangle
+    mask = np.triu(np.ones_like(corr, dtype=np.bool))
+
+    # Set up the matplotlib figure
+    f, ax = plt.subplots(figsize=(11, 9))
+
+    # Generate a custom diverging colormap
+    cmap = sb.diverging_palette(220, 10, as_cmap=True)
+
+    # Draw the heatmap with the mask and correct aspect ratio
+    sb.heatmap(corr, mask=mask, cmap=cmap, center=0,
+                square=True, annot=True)
+    '''
+    '''
+    print("Boxplots for cluster 0")
+    # Box Plots
+    f, (ax) = plt.subplots(1, 1, figsize=(12, 4))
+    f.suptitle('Nesto - nesto', fontsize=14)
+
+    sb.boxplot(x="BALANCE", y="PURCHASES", data=df, ax=ax)
+    ax.set_xlabel("Balance", size=12, alpha=0.8)
+    ax.set_ylabel("Purchases", size=12, alpha=0.8)
+    '''
 '''
     kmeans = KMeans(2, 10)
     kmeans.fit(float_data, True)
