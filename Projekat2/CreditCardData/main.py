@@ -8,6 +8,9 @@ import math
 import csv
 import seaborn as sb
 
+k_max = 13
+
+data_file_path = "data/credit_card_data.csv"
 column_names = ['BALANCE','BALANCE_FREQUENCY','PURCHASES','ONEOFF_PURCHASES','INSTALLMENTS_PURCHASES','CASH_ADVANCE','PURCHASES_FREQUENCY','ONEOFF_PURCHASES_FREQUENCY','PURCHASES_INSTALLMENTS_FREQUENCY','CASH_ADVANCE_FREQUENCY','CASH_ADVANCE_TRX','PURCHASES_TRX','CREDIT_LIMIT','PAYMENTS','MINIMUM_PAYMENTS','PRC_FULL_PAYMENT','TENURE']
 
 '''
@@ -157,62 +160,72 @@ class KMeans(object):
         return sse**2
 
 
-if __name__ == "__main__":
-    df = pd.read_csv(r"data/credit_card_data.csv", header=None)
+def preprocess_data(file_path):
+    # read .csv file
+    df = pd.read_csv(file_path, header=None)
     df = df.drop(df.columns[0], axis=1)
 
+    # prepare data
     list_of_rows = [list(row) for row in df.values]
     list_of_rows = list_of_rows[1:]
 
     float_data = []
     for row in list_of_rows:
-        newRow = []
+        new_row = []
         for value in row:
             float_value = float(value)
             if math.isnan(float_value):
                 float_value = 0
-            newRow.append(float_value)
-        float_data.append(newRow)
+            new_row.append(float_value)
+        float_data.append(new_row)
 
-    # --- ODREDJIVANJE OPTIMALNOG K --- #
+    return float_data
 
-    #plt.figure()
-    #sum_squared_errors = []
-    '''
-    for n_clusters in range(7, 8):
+
+def optimal_k_value(upper_limit, input_data):
+    plt.figure()
+    sum_squared_errors = []
+    for n_clusters in range(2, upper_limit):
         print("Number of clusters: " + str(n_clusters))
         kmeans = KMeans(n_clusters=n_clusters, max_iter=100)
-        kmeans.fit(float_data, True)
+        kmeans.fit(input_data, False)
         sse = kmeans.sum_squared_error()
-        #sum_squared_errors.append(sse)
-    '''
-    #plt.plot(sum_squared_errors)
-    #plt.xlabel('# of clusters')
-    #plt.ylabel('SSE')
-    #plt.show()
+        sum_squared_errors.append(sse)
+    plt.plot(sum_squared_errors)
+    plt.xlabel('# of clusters')
+    plt.ylabel('SSE')
+    plt.show()
 
-    print("Number of clusters: " + str(7))
-    kmeans = KMeans(n_clusters=7, max_iter=100)
-    kmeans.fit(float_data, False)
-    sse = kmeans.sum_squared_error()
-    # sum_squared_errors.append(sse)
 
-    for cluster in kmeans.clusters:
-        file_name = "data/cluster" + str(kmeans.clusters.index(cluster)) + ".csv"
-        with open(file_name, mode='w') as cluster_file:
+def write_clusters(clusters):
+    for cluster in clusters:
+        file_name = "data/clusters/cluster" + str(clusters.index(cluster)) + ".csv"
+        with open(file_name, mode='w', newline='\n') as cluster_file:
             cluster_writer = csv.writer(cluster_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-            cluster_writer.writerow(['BALANCE','BALANCE_FREQUENCY','PURCHASES','ONEOFF_PURCHASES','INSTALLMENTS_PURCHASES','CASH_ADVANCE','PURCHASES_FREQUENCY','ONEOFF_PURCHASES_FREQUENCY','PURCHASES_INSTALLMENTS_FREQUENCY','CASH_ADVANCE_FREQUENCY','CASH_ADVANCE_TRX','PURCHASES_TRX','CREDIT_LIMIT','PAYMENTS','MINIMUM_PAYMENTS','PRC_FULL_PAYMENT','TENURE'])
+            cluster_writer.writerow(column_names)
             for row in cluster.data:
                 cluster_writer.writerow(row)
 
-    print("Done")
-    '''
-    Provera najmanjeg opsega po kolonama u klasteru
-    cluster0 = pd.read_csv(r"data/cluster09.csv")
-    for col_name in column_names:
-        razlika = float(cluster0[col_name].max()) - float(cluster0[col_name].min())
-        print(razlika)
+    print("Cluster files written")
 
+
+if __name__ == "__main__":
+
+    # read data
+    data = preprocess_data(data_file_path)
+    print("Data preprocessed")
+
+    # determine optimal K value
+    #optimal_k_value(k_max + 1, data)
+
+    optimal_k = 9
+    print("Optimal number of clusters: " + str(optimal_k))
+    kmeans = KMeans(n_clusters=optimal_k, max_iter=100)
+    kmeans.fit(data, False)
+
+    write_clusters(kmeans.clusters)
+
+    '''
     Analiza dobijenih podataka
     df = pd.read_csv(r"data/credit_card_data.csv")
     print("Heatmap")
@@ -232,19 +245,3 @@ if __name__ == "__main__":
     sb.heatmap(corr, mask=mask, cmap=cmap, center=0,
                 square=True, annot=True)
     '''
-    '''
-    print("Boxplots for cluster 0")
-    # Box Plots
-    f, (ax) = plt.subplots(1, 1, figsize=(12, 4))
-    f.suptitle('Nesto - nesto', fontsize=14)
-
-    sb.boxplot(x="BALANCE", y="PURCHASES", data=df, ax=ax)
-    ax.set_xlabel("Balance", size=12, alpha=0.8)
-    ax.set_ylabel("Purchases", size=12, alpha=0.8)
-    '''
-'''
-    kmeans = KMeans(2, 10)
-    kmeans.fit(float_data, True)
-    for k in kmeans.clusters:
-        print(k)
-'''

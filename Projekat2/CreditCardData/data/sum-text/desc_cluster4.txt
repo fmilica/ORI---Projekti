@@ -1,0 +1,137 @@
+Cluster number 4
+	Current column BALANCE
+		mean value lower in cluster by: 982.0263081394467
+		std value lower in cluster by: 1472.4478186245856
+		min value lower in cluster by: 0.0
+		25% value lower in cluster by: 83.20624824999999
+		50% value lower in cluster by: 536.0113799999999
+		75% value lower in cluster by: 1001.5089005000002
+		max value lower in cluster by: 15827.234755
+	Current column BALANCE_FREQUENCY
+		mean value lower in cluster by: 0.04678518306726509
+		std value higher in cluster by: 0.036272133838232495
+		min value lower in cluster by: 0.0
+		25% value lower in cluster by: 0.16161599999999998
+		50% value lower in cluster by: 0.0
+		75% value lower in cluster by: 0.0
+		max value lower in cluster by: 0.0
+	Current column PURCHASES
+		mean value lower in cluster by: 577.396029517734
+		std value lower in cluster by: 1599.0177062718362
+		min value lower in cluster by: 0.0
+		25% value lower in cluster by: 1.9600000000000009
+		50% value lower in cluster by: 118.70999999999998
+		75% value lower in cluster by: 523.2575
+		max value lower in cluster by: 44432.86
+	Current column ONEOFF_PURCHASES
+		mean value lower in cluster by: 400.48098622939335
+		std value lower in cluster by: 1260.71003978273
+		min value lower in cluster by: 0.0
+		25% value lower in cluster by: 0.0
+		50% value lower in cluster by: 38.0
+		75% value lower in cluster by: 391.4750000000001
+		max value lower in cluster by: 36699.29
+	Current column INSTALLMENTS_PURCHASES
+		mean value lower in cluster by: 176.86056647536589
+		std value lower in cluster by: 541.861877092525
+		min value lower in cluster by: 0.0
+		25% value lower in cluster by: 0.0
+		50% value lower in cluster by: 9.009999999999991
+		75% value lower in cluster by: 124.83499999999992
+		max value lower in cluster by: 18980.0
+	Current column CASH_ADVANCE
+		mean value lower in cluster by: 698.3830548374622
+		std value lower in cluster by: 1577.0676536513984
+		min value lower in cluster by: 0.0
+		25% value lower in cluster by: 0.0
+		50% value lower in cluster by: 0.0
+		75% value lower in cluster by: 808.4610094999998
+		max value lower in cluster by: 44173.41032
+	Current column PURCHASES_FREQUENCY
+		mean value lower in cluster by: 0.03250974847083865
+		std value lower in cluster by: 0.013025167476232169
+		min value lower in cluster by: 0.0
+		25% value lower in cluster by: 0.0
+		50% value lower in cluster by: 0.08333299999999999
+		75% value lower in cluster by: 0.04166700000000001
+		max value lower in cluster by: 0.0
+	Current column ONEOFF_PURCHASES_FREQUENCY
+		mean value lower in cluster by: 0.08828126906882508
+		std value lower in cluster by: 0.08716785426952778
+		min value lower in cluster by: 0.0
+		25% value lower in cluster by: 0.0
+		50% value lower in cluster by: 0.083333
+		75% value lower in cluster by: 0.157143
+		max value lower in cluster by: 0.0
+	Current column PURCHASES_INSTALLMENTS_FREQUENCY
+		mean value lower in cluster by: 0.0067600662118129096
+		std value lower in cluster by: 0.008481186086401082
+		min value lower in cluster by: 0.0
+		25% value lower in cluster by: 0.0
+		50% value lower in cluster by: 0.0
+		75% value lower in cluster by: 0.0
+		max value lower in cluster by: 0.0
+	Current column CASH_ADVANCE_FREQUENCY
+		mean value lower in cluster by: 0.04935757732473625
+		std value lower in cluster by: 0.05582897475965479
+		min value lower in cluster by: 0.0
+		25% value lower in cluster by: 0.0
+		50% value lower in cluster by: 0.0
+		75% value lower in cluster by: 0.08382925
+		max value lower in cluster by: 0.5
+	Current column CASH_ADVANCE_TRX
+		mean value lower in cluster by: 1.6135380480208121
+		std value lower in cluster by: 3.3837654426921415
+		min value lower in cluster by: 0.0
+		25% value lower in cluster by: 0.0
+		50% value lower in cluster by: 0.0
+		75% value lower in cluster by: 2.0
+		max value lower in cluster by: 61.0
+	Current column PURCHASES_TRX
+		mean value lower in cluster by: 6.1186545941400485
+		std value lower in cluster by: 13.975363565823383
+		min value lower in cluster by: 0.0
+		25% value lower in cluster by: 0.0
+		50% value lower in cluster by: 1.0
+		75% value lower in cluster by: 5.0
+		max value lower in cluster by: 172.0
+	Current column CREDIT_LIMIT
+		mean value lower in cluster by: 2536.733518462458
+		std value lower in cluster by: 2641.0845405401833
+		min value lower in cluster by: 0.0
+		25% value lower in cluster by: 400.0
+		50% value lower in cluster by: 1400.0
+		75% value lower in cluster by: 4000.0
+		max value lower in cluster by: 25000.0
+	Current column PAYMENTS
+		mean value lower in cluster by: 1070.3639847908344
+		std value lower in cluster by: 2268.902212146062
+		min value lower in cluster by: 0.0
+		25% value lower in cluster by: 139.73781275
+		50% value lower in cluster by: 399.73625350000003
+		75% value lower in cluster by: 1035.1923444999998
+		max value lower in cluster by: 46077.34121500001
+	Current column MINIMUM_PAYMENTS
+		mean value lower in cluster by: 435.96748555440195
+		std value lower in cluster by: 1546.1619773117395
+		min value lower in cluster by: 0.0
+		25% value lower in cluster by: 34.229833249999984
+		50% value lower in cluster by: 100.249302
+		75% value lower in cluster by: 395.63690399999984
+		max value lower in cluster by: 65606.16133
+	Current column PRC_FULL_PAYMENT
+		mean value higher in cluster by: 0.0036432748826409067
+		std value lower in cluster by: 0.0004129753049817997
+		min value lower in cluster by: 0.0
+		25% value lower in cluster by: 0.0
+		50% value lower in cluster by: 0.0
+		75% value higher in cluster by: 0.023810000000000026
+		max value lower in cluster by: 0.0
+	Current column TENURE
+		mean value lower in cluster by: 0.18148396554045654
+		std value higher in cluster by: 0.22752131973690237
+		min value lower in cluster by: 0.0
+		25% value lower in cluster by: 0.0
+		50% value lower in cluster by: 0.0
+		75% value lower in cluster by: 0.0
+		max value lower in cluster by: 0.0

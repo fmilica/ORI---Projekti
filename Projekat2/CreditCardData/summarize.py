@@ -1,9 +1,9 @@
 import math
 import pandas as pd
+import matplotlib.pyplot as plt
 import matplotlib as mpl
 # used for creating plot .png file
 mpl.use('agg')
-import matplotlib.pyplot as plt
 
 # static variables
 data_file_path = "data/credit_card_data.csv"
@@ -13,26 +13,30 @@ column_names = ['BALANCE', 'BALANCE_FREQUENCY', 'PURCHASES', 'ONEOFF_PURCHASES',
                 'CASH_ADVANCE_FREQUENCY', 'CASH_ADVANCE_TRX', 'PURCHASES_TRX',
                 'CREDIT_LIMIT', 'PAYMENTS', 'MINIMUM_PAYMENTS', 'PRC_FULL_PAYMENT', 'TENURE']
 row_names = ['mean', 'std', 'min', '25%', '50%', '75%', 'max']
-total_cluster_num = 7
+total_cluster_num = 9
 
 
-def initial_statistics(file_path):
+def read_data(file_path):
     # citanje fajla
-    credit_card_data = pd.read_csv(file_path)
+    data = pd.read_csv(file_path)
     # pretprocesiranje podataka
-    credit_card_data = credit_card_data.drop('CUST_ID', 1)
-    credit_card_data = credit_card_data.fillna(0)
-    credit_card_data.apply(pd.to_numeric)
+    data = data.drop('CUST_ID', 1)
+    data = data.fillna(0)
+    data.apply(pd.to_numeric)
+    return data
 
+
+def initial_statistics(credit_card_data):
+    # bazna statistika
     initial_stats = credit_card_data.describe()
-    initial_stats.to_csv('data/summarize/initial_info.csv')
+    initial_stats.to_csv('data/sum_initial.csv')
     return initial_stats
 
 
 def summarize_all_clusters(cluster_number):
     all_cluster_stats = []
     for cluster_idx in range(0, cluster_number):
-        cluster_df = pd.read_csv("data/cluster" + str(cluster_idx) + ".csv")
+        cluster_df = pd.read_csv("data/clusters/cluster" + str(cluster_idx) + ".csv")
         cluster_stats = summarize_cluster(cluster_idx, cluster_df)
         all_cluster_stats.append(cluster_stats)
     return all_cluster_stats
@@ -52,9 +56,12 @@ def compare_all_clusters(initial_stats_df, all_cluster_stats):
 
 
 def compare_cluster(initial_stats_df, cluster_df, cluster_idx):
+    f = open("data/sum-text/desc_cluster" + str(cluster_idx) + ".txt", "w")
     print("Cluster number " + str(cluster_idx))
+    f.write("Cluster number " + str(cluster_idx) + "\n")
     for col_name in column_names:
         print("\tCurrent column " + col_name)
+        f.write("\tCurrent column " + col_name + "\n")
         for row_name in row_names:
             init_value = initial_stats_df[col_name][row_name]
             cluster_value = cluster_df[col_name][row_name]
@@ -62,16 +69,19 @@ def compare_cluster(initial_stats_df, cluster_df, cluster_idx):
             diff = init_value - cluster_value
             if diff < 0:
                 print("\t\t" + row_name + " value higher in cluster by: " + str(abs(diff)))
+                f.write("\t\t" + row_name + " value higher in cluster by: " + str(abs(diff)) + "\n")
             else:
                 print("\t\t" + row_name + " value lower in cluster by: " + str(abs(diff)))
+                f.write("\t\t" + row_name + " value lower in cluster by: " + str(abs(diff)) + "\n")
         print()
     print()
+    f.close()
 
 
 def read_cluster_data(cluster_number):
     all_clusters_stats = []
     for cluster_idx in range(0, cluster_number):
-        cluster_df = pd.read_csv("data/cluster" + str(cluster_idx) + ".csv")
+        cluster_df = pd.read_csv("data/clusters/cluster" + str(cluster_idx) + ".csv")
         all_clusters_stats.append(cluster_df)
     return all_clusters_stats
 
@@ -83,10 +93,14 @@ def preprocces_data(col_cluster_data):
     return proccessed_col_data
 
 
-def create_parallel_box_plots(all_cluster_data):
+def create_parallel_box_plots(start_data, all_cluster_data):
     # paralelni box-plotovi za svaku kolonu
     for col_name in column_names:
         col_data_to_plot = []
+        # pretprocesiranje pocetnih podataka (lista lista)
+        col_start_data = start_data[col_name]
+        start_data_per_col = preprocces_data(col_start_data)
+        col_data_to_plot.append(start_data_per_col)
         for cluster_data in all_cluster_data:
             col_cluster_data = cluster_data[col_name]
             # pretprocesiranje
@@ -106,7 +120,7 @@ def plot_data(data_to_plot, number_of_clusters, column_name):
     ax = fig.add_subplot(111)
 
     # Custom x-axis labels
-    xticklabels = []
+    xticklabels = ['Initial']
     for cluster_num in range(0, number_of_clusters):
         xticklabels.append('Cluster' + str(cluster_num))
     ax.set_xticklabels(xticklabels)
@@ -126,9 +140,10 @@ def plot_data(data_to_plot, number_of_clusters, column_name):
 
 if __name__ == '__main__':
 
-    initial_data_stats = initial_statistics(data_file_path)
+    initial_data = read_data(data_file_path)
+    initial_data_stats = initial_statistics(initial_data)
     clusters_stats = summarize_all_clusters(total_cluster_num)
     compare_all_clusters(initial_data_stats, clusters_stats)
     # box-plots
     clusters_data = read_cluster_data(total_cluster_num)
-    create_parallel_box_plots(clusters_data)
+    create_parallel_box_plots(initial_data, clusters_data)
