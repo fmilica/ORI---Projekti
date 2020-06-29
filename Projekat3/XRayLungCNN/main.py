@@ -1,15 +1,22 @@
 from pathlib import Path
 import cv2
 import numpy as np
-from keras.utils import to_categorical
-from keras.models import Sequential, Model
-from keras.layers import Conv2D, MaxPooling2D, Activation, Dense, Dropout, Input, Flatten, SeparableConv2D
-import keras
+
+import tensorflow as tf
+
+from tensorflow import keras
+
+from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.models import Sequential, Model
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Activation, Dense, \
+    Dropout, Input, Flatten, SeparableConv2D, LeakyReLU
+
+from keras.preprocessing.image import ImageDataGenerator
 
 #image width and height
 img_rows, img_cols = 64, 64
 
-epochs = 70
+epochs = 20
 batch_size = 16
 num_classes = 3
 
@@ -18,6 +25,7 @@ val_dir = Path("data/val")
 
 if __name__ == '__main__':
 
+    '''
     #--------------Training data-------------
     normal_cases_dir = train_dir / 'NORMAL'
     bacteria_cases_dir = train_dir / 'BACTERIA'
@@ -105,37 +113,84 @@ if __name__ == '__main__':
     # Convert the list into numpy arrays
     val_data = np.array(val_data)
     val_labels = np.array(val_labels)
+    '''
+
+    # Process data
+
+    train_datagen = ImageDataGenerator(rescale=1./255)
+
+    train_generator = train_datagen.flow_from_directory(
+        'data/train',
+        #labels="inferred",
+        #label_mode="categorical",
+        #class_names=None,
+        class_mode='categorical',
+        color_mode="grayscale",
+        batch_size=32,
+        #image_size=(64, 64),
+        target_size=(64, 64),
+        shuffle=True,
+        seed=None,
+        #validation_split=None,
+        subset=None,
+        interpolation="bilinear",
+        follow_links=False,
+    )
+
+    val_datagen = ImageDataGenerator(rescale=1./255)
+
+    validation_generator = val_datagen.flow_from_directory(
+        'data/val',
+        #labels="inferred",
+        #label_mode="categorical",
+        #class_names=None,
+        class_mode='categorical',
+        color_mode="grayscale",
+        batch_size=32,
+        #image_size=(64, 64),
+        target_size=(64, 64),
+        shuffle=True,
+        seed=None,
+        #validation_split=None,
+        subset=None,
+        interpolation="bilinear",
+        follow_links=False,
+    )
 
     #Data is processed, now we need to create the model
 
     model = Sequential()
-    model.add(Conv2D(64, kernel_size=(3, 3), input_shape=(img_rows, img_cols, 3)))
-    model.add(Activation("relu"))
+    model.add(Conv2D(64, padding='same', kernel_size=(3, 3), input_shape=(img_rows, img_cols, 1)))
+    model.add(Activation('linear'))
+    model.add(LeakyReLU(alpha=0.1))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Dropout(0.1))
+
+    model.add(Conv2D(64, padding='same', kernel_size=(3, 3), input_shape=(img_rows, img_cols, 1)))
+    model.add(Activation('linear'))
+    model.add(LeakyReLU(alpha=0.1))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.2))
 
-    model.add(Conv2D(64, (3, 3), input_shape=(img_rows, img_cols, 3)))
-    model.add(Activation("relu"))
+    model.add(Conv2D(64, padding='same', kernel_size=(3, 3), input_shape=(img_rows, img_cols, 1)))
+    model.add(Activation('linear'))
+    model.add(LeakyReLU(alpha=0.1))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.3))
 
-    model.add(Conv2D(64, (3, 3), input_shape=(img_rows, img_cols, 3)))
-    model.add(Activation("relu"))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.3))
-
-    model.add(Conv2D(64, (3, 3), input_shape=(img_rows, img_cols, 3)))
-    model.add(Activation("relu"))
+    model.add(Conv2D(64, padding='same', kernel_size=(3, 3), input_shape=(img_rows, img_cols, 1)))
+    model.add(Activation('linear'))
+    model.add(LeakyReLU(alpha=0.1))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.4))
 
     model.add(Flatten())
 
-    model.add(Dense(64, activation= "relu", kernel_regularizer=keras.regularizers.l2(0.001)))
+    #model.add(Dense(64, activation= "relu", kernel_regularizer=keras.regularizers.l2(0.001)))
 
-    model.add(Dropout(0.5))
+    #model.add(Dropout(0.5))
 
-    model.add(Dense(3, kernel_regularizer=keras.regularizers.l2(0.001)))
+    model.add(Dense(3, kernel_regularizer=keras.regularizers.l2(0.01)))
     model.add(Activation("softmax"))
 
     model.summary()
@@ -145,8 +200,9 @@ if __name__ == '__main__':
                   optimizer=keras.optimizers.Adam(), metrics=['accuracy'])
 
     # Train and evaluation
-    model.fit(train_data, train_labels, batch_size=batch_size, epochs=epochs, verbose=1, validation_data=(val_data, val_labels))
+    model.fit_generator(generator=train_generator, validation_data=validation_generator, epochs=epochs, verbose=1)
+    #model.fit_generator(generator=train_generator, )
     # Show results
-    score = model.evaluate(val_data, val_labels, verbose=0)
+    score = model.evaluate_generator(train_generator, verbose=0)
     print('Test loss:', score[0])
     print('Test accuracy:', score[1])
