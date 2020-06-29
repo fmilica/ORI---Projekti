@@ -1,5 +1,6 @@
 import math
 import pandas as pd
+from pandas.plotting import scatter_matrix
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 # used for creating plot .png file
@@ -7,8 +8,8 @@ mpl.use('agg')
 
 # static variables
 data_file_path = "data/credit_card_data.csv"
-column_names = ['BALANCE', 'BALANCE_FREQUENCY', 'PURCHASES', 'ONEOFF_PURCHASES',
-                'INSTALLMENTS_PURCHASES', 'CASH_ADVANCE', 'PURCHASES_FREQUENCY',
+column_names = ['BALANCE', 'BALANCE_FREQUENCY', 'ONEOFF_PURCHASES',
+                'INSTALLMENTS_PURCHASES', 'CASH_ADVANCE',
                 'ONEOFF_PURCHASES_FREQUENCY', 'PURCHASES_INSTALLMENTS_FREQUENCY',
                 'CASH_ADVANCE_FREQUENCY', 'CASH_ADVANCE_TRX', 'PURCHASES_TRX',
                 'CREDIT_LIMIT', 'PAYMENTS', 'MINIMUM_PAYMENTS', 'PRC_FULL_PAYMENT', 'TENURE']
@@ -138,12 +139,25 @@ def plot_data(data_to_plot, number_of_clusters, column_name):
     plt.clf()
 
 
+def create_2d_clusters(all_cluster_data):
+    # Create scatter matrices
+    i = 0
+    for cluster in all_cluster_data:
+        scatter_matrix(cluster, alpha=0.2, figsize=(6, 6), diagonal='kde')
+        # Save the figure
+        plt.savefig('matrices/' + 'matrix-cluster' + str(i) + '.png', bbox_inches='tight')
+        i += 1
+
+
 if __name__ == '__main__':
 
     initial_data = read_data(data_file_path)
     initial_data_stats = initial_statistics(initial_data)
+    # mean, median, quartiles
     clusters_stats = summarize_all_clusters(total_cluster_num)
     compare_all_clusters(initial_data_stats, clusters_stats)
     # box-plots
     clusters_data = read_cluster_data(total_cluster_num)
     create_parallel_box_plots(initial_data, clusters_data)
+    # 2D representation (every attribute with every attribute)
+    create_2d_clusters(clusters_data)

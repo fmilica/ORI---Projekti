@@ -8,10 +8,20 @@ import math
 import csv
 import seaborn as sb
 
-k_max = 13
+k_max = 20
 
 data_file_path = "data/credit_card_data.csv"
-column_names = ['BALANCE','BALANCE_FREQUENCY','PURCHASES','ONEOFF_PURCHASES','INSTALLMENTS_PURCHASES','CASH_ADVANCE','PURCHASES_FREQUENCY','ONEOFF_PURCHASES_FREQUENCY','PURCHASES_INSTALLMENTS_FREQUENCY','CASH_ADVANCE_FREQUENCY','CASH_ADVANCE_TRX','PURCHASES_TRX','CREDIT_LIMIT','PAYMENTS','MINIMUM_PAYMENTS','PRC_FULL_PAYMENT','TENURE']
+column_names = ['BALANCE', 'BALANCE_FREQUENCY', 'PURCHASES', 'ONEOFF_PURCHASES',
+                'INSTALLMENTS_PURCHASES', 'CASH_ADVANCE', 'PURCHASES_FREQUENCY',
+                'ONEOFF_PURCHASES_FREQUENCY', 'PURCHASES_INSTALLMENTS_FREQUENCY',
+                'CASH_ADVANCE_FREQUENCY', 'CASH_ADVANCE_TRX', 'PURCHASES_TRX',
+                'CREDIT_LIMIT', 'PAYMENTS', 'MINIMUM_PAYMENTS', 'PRC_FULL_PAYMENT', 'TENURE']
+
+column_new_names = ['BALANCE', 'BALANCE_FREQUENCY', 'ONEOFF_PURCHASES',
+                'INSTALLMENTS_PURCHASES', 'CASH_ADVANCE',
+                'ONEOFF_PURCHASES_FREQUENCY', 'PURCHASES_INSTALLMENTS_FREQUENCY',
+                'CASH_ADVANCE_FREQUENCY', 'CASH_ADVANCE_TRX', 'PURCHASES_TRX',
+                'CREDIT_LIMIT', 'PAYMENTS', 'MINIMUM_PAYMENTS', 'PRC_FULL_PAYMENT', 'TENURE']
 
 '''
 class Point:
@@ -160,12 +170,19 @@ class KMeans(object):
         return sse**2
 
 
-def preprocess_data(file_path):
-    # read .csv file
-    df = pd.read_csv(file_path, header=None)
+def read_data(file_path):
+    # citanje .csv fajla
+    df = pd.read_csv(file_path)
     df = df.drop(df.columns[0], axis=1)
+    df = df.fillna(0)
+    return df
 
-    # prepare data
+
+def preprocess_data(df):
+    # odbacivanje kolona sa velikom korelacijom
+    df = df.drop(['PURCHASES', 'PURCHASES_FREQUENCY'], axis=1)
+
+    # priprema podataka
     list_of_rows = [list(row) for row in df.values]
     list_of_rows = list_of_rows[1:]
 
@@ -202,20 +219,60 @@ def write_clusters(clusters):
         file_name = "data/clusters/cluster" + str(clusters.index(cluster)) + ".csv"
         with open(file_name, mode='w', newline='\n') as cluster_file:
             cluster_writer = csv.writer(cluster_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-            cluster_writer.writerow(column_names)
+            cluster_writer.writerow(column_new_names)
             for row in cluster.data:
                 cluster_writer.writerow(row)
 
     print("Cluster files written")
 
 
+def create_correlation_matrix(input_data, plot):
+    # Analiza pocetnih podataka
+    print("Heatmap")
+    # Compute the correlation matrix
+    corr = input_data.corr()
+
+    # Generate a mask for the upper triangle
+    mask = np.triu(np.ones_like(corr, dtype=np.bool))
+
+    # Set up the matplotlib figure
+    fig, ax = plt.subplots(figsize=(20, 15))
+
+    # Generate a custom diverging colormap
+    cmap = sb.diverging_palette(220, 10, as_cmap=True)
+
+    # Draw the heatmap with the mask and correct aspect ratio
+    sb.heatmap(corr, mask=mask, cmap=cmap, center=0,
+                square=False, annot=True)
+
+    if plot:
+        plt.show()
+
+    # Save the figure
+    fig.savefig("correlation-matrix.png", bbox_inches='tight')
+
+    # Print all correlations above 0.8
+    columns = list(corr)
+    for i in columns:
+        for col_name in column_names:
+            if 0.8 <= corr[i][col_name] < 1:
+                if plot:
+                    print(col_name + "\t" + str(corr[i][col_name]))
+
+
 if __name__ == "__main__":
 
-    # read data
-    data = preprocess_data(data_file_path)
+    # Citanje fajla
+    data_frame = read_data(data_file_path)
+
+    # Kreiranje matrice korelacije
+    #create_correlation_matrix(data_frame, False)
+
+    # Pretprocesiranje
+    data = preprocess_data(data_frame)
     print("Data preprocessed")
 
-    # determine optimal K value
+    # Odredjivanje optimalne k-vrednosti
     #optimal_k_value(k_max + 1, data)
 
     optimal_k = 9
@@ -225,23 +282,3 @@ if __name__ == "__main__":
 
     write_clusters(kmeans.clusters)
 
-    '''
-    Analiza dobijenih podataka
-    df = pd.read_csv(r"data/credit_card_data.csv")
-    print("Heatmap")
-    # Compute the correlation matrix
-    corr = df.corr()
-
-    # Generate a mask for the upper triangle
-    mask = np.triu(np.ones_like(corr, dtype=np.bool))
-
-    # Set up the matplotlib figure
-    f, ax = plt.subplots(figsize=(11, 9))
-
-    # Generate a custom diverging colormap
-    cmap = sb.diverging_palette(220, 10, as_cmap=True)
-
-    # Draw the heatmap with the mask and correct aspect ratio
-    sb.heatmap(corr, mask=mask, cmap=cmap, center=0,
-                square=True, annot=True)
-    '''
