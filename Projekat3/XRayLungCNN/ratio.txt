@@ -10,4 +10,7 @@ Normal = 744
     -train: 632
 	-val: 112
 	
+Ovo vise ne vazi delice se programski pomocu validation split i onda cemo
+ traziti koji je najbolji
+	
 Test = 690
