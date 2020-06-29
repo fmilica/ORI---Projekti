@@ -1,0 +1,121 @@
+Cluster number 6
+	Current column BALANCE
+		mean value higher in cluster than in initial dataset by: 290.562613259126
+		std value lower in cluster than in initial dataset by: 1073.0376490218691
+		min value lower in cluster than in initial dataset by: 0.0
+		25% value higher in cluster than in initial dataset by: 953.0444797499999
+		50% value higher in cluster than in initial dataset by: 941.3444035
+		75% value higher in cluster than in initial dataset by: 540.8188475000002
+		max value lower in cluster than in initial dataset by: 14343.031957999998
+	Current column BALANCE_FREQUENCY
+		mean value higher in cluster than in initial dataset by: 0.06281771893895527
+		std value lower in cluster than in initial dataset by: 0.08872112836577797
+		min value lower in cluster than in initial dataset by: 0.0
+		25% value higher in cluster than in initial dataset by: 0.11111100000000007
+		50% value lower in cluster than in initial dataset by: 0.0
+		75% value lower in cluster than in initial dataset by: 0.0
+		max value lower in cluster than in initial dataset by: 0.0
+	Current column ONEOFF_PURCHASES
+		mean value lower in cluster than in initial dataset by: 42.65245854096156
+		std value lower in cluster than in initial dataset by: 611.7334203495805
+		min value lower in cluster than in initial dataset by: 0.0
+		25% value lower in cluster than in initial dataset by: 0.0
+		50% value lower in cluster than in initial dataset by: 38.0
+		75% value higher in cluster than in initial dataset by: 88.82999999999993
+		max value lower in cluster than in initial dataset by: 32707.3
+	Current column INSTALLMENTS_PURCHASES
+		mean value lower in cluster than in initial dataset by: 51.086002356970994
+		std value lower in cluster than in initial dataset by: 213.2485806519353
+		min value lower in cluster than in initial dataset by: 0.0
+		25% value lower in cluster than in initial dataset by: 0.0
+		50% value lower in cluster than in initial dataset by: 89.0
+		75% value lower in cluster than in initial dataset by: 48.01749999999993
+		max value lower in cluster than in initial dataset by: 17036.27
+	Current column CASH_ADVANCE
+		mean value higher in cluster than in initial dataset by: 411.1352608389045
+		std value lower in cluster than in initial dataset by: 743.8149242867546
+		min value lower in cluster than in initial dataset by: 0.0
+		25% value higher in cluster than in initial dataset by: 93.17002675
+		50% value higher in cluster than in initial dataset by: 1133.5074605
+		75% value higher in cluster than in initial dataset by: 1160.5610992500006
+		max value lower in cluster than in initial dataset by: 40520.656069000004
+	Current column ONEOFF_PURCHASES_FREQUENCY
+		mean value lower in cluster than in initial dataset by: 0.00852082007176938
+		std value lower in cluster than in initial dataset by: 0.009880250796470036
+		min value lower in cluster than in initial dataset by: 0.0
+		25% value lower in cluster than in initial dataset by: 0.0
+		50% value lower in cluster than in initial dataset by: 0.083333
+		75% value lower in cluster than in initial dataset by: 0.017532749999999986
+		max value lower in cluster than in initial dataset by: 0.0
+	Current column PURCHASES_INSTALLMENTS_FREQUENCY
+		mean value lower in cluster than in initial dataset by: 0.07535932988541366
+		std value lower in cluster than in initial dataset by: 0.008887046162858236
+		min value lower in cluster than in initial dataset by: 0.0
+		25% value lower in cluster than in initial dataset by: 0.0
+		50% value lower in cluster than in initial dataset by: 0.166667
+		75% value lower in cluster than in initial dataset by: 0.15000000000000002
+		max value lower in cluster than in initial dataset by: 0.0
+	Current column CASH_ADVANCE_FREQUENCY
+		mean value higher in cluster than in initial dataset by: 0.08462428068670227
+		std value higher in cluster than in initial dataset by: 0.007157325127809033
+		min value lower in cluster than in initial dataset by: 0.0
+		25% value higher in cluster than in initial dataset by: 0.083333
+		50% value higher in cluster than in initial dataset by: 0.166667
+		75% value higher in cluster than in initial dataset by: 0.11111100000000002
+		max value lower in cluster than in initial dataset by: 0.3333330000000001
+	Current column CASH_ADVANCE_TRX
+		mean value higher in cluster than in initial dataset by: 2.0519031113648407
+		std value higher in cluster than in initial dataset by: 0.5450689541580855
+		min value lower in cluster than in initial dataset by: 0.0
+		25% value higher in cluster than in initial dataset by: 1.0
+		50% value higher in cluster than in initial dataset by: 3.0
+		75% value higher in cluster than in initial dataset by: 3.0
+		max value lower in cluster than in initial dataset by: 0.0
+	Current column PURCHASES_TRX
+		mean value lower in cluster than in initial dataset by: 1.2813652489499656
+		std value lower in cluster than in initial dataset by: 3.8570144925124445
+		min value lower in cluster than in initial dataset by: 0.0
+		25% value lower in cluster than in initial dataset by: 1.0
+		50% value lower in cluster than in initial dataset by: 3.0
+		75% value higher in cluster than in initial dataset by: 1.0
+		max value lower in cluster than in initial dataset by: 217.0
+	Current column CREDIT_LIMIT
+		mean value lower in cluster than in initial dataset by: 1365.654495408829
+		std value lower in cluster than in initial dataset by: 2672.215841126111
+		min value higher in cluster than in initial dataset by: 50.0
+		25% value higher in cluster than in initial dataset by: 900.0
+		50% value lower in cluster than in initial dataset by: 0.0
+		75% value lower in cluster than in initial dataset by: 2500.0
+		max value lower in cluster than in initial dataset by: 24000.0
+	Current column PAYMENTS
+		mean value higher in cluster than in initial dataset by: 343.7820127620571
+		std value lower in cluster than in initial dataset by: 1234.835874502061
+		min value lower in cluster than in initial dataset by: 0.0
+		25% value higher in cluster than in initial dataset by: 328.88807225000016
+		50% value higher in cluster than in initial dataset by: 714.0686194999998
+		75% value higher in cluster than in initial dataset by: 1238.336171
+		max value lower in cluster than in initial dataset by: 41733.94919700001
+	Current column MINIMUM_PAYMENTS
+		mean value higher in cluster than in initial dataset by: 474.37856240103736
+		std value lower in cluster than in initial dataset by: 308.39258653306206
+		min value lower in cluster than in initial dataset by: 0.0
+		25% value higher in cluster than in initial dataset by: 229.26863799999998
+		50% value higher in cluster than in initial dataset by: 390.7187775
+		75% value higher in cluster than in initial dataset by: 386.2329575000001
+		max value lower in cluster than in initial dataset by: 62489.50462000001
+	Current column PRC_FULL_PAYMENT
+		mean value lower in cluster than in initial dataset by: 0.07656679155731354
+		std value lower in cluster than in initial dataset by: 0.10050530815908609
+		min value lower in cluster than in initial dataset by: 0.0
+		25% value lower in cluster than in initial dataset by: 0.0
+		50% value lower in cluster than in initial dataset by: 0.0
+		75% value lower in cluster than in initial dataset by: 0.05952399999999998
+		max value lower in cluster than in initial dataset by: 0.0
+	Current column TENURE
+		mean value higher in cluster than in initial dataset by: 0.05129470293194238
+		std value lower in cluster than in initial dataset by: 0.11342178511757384
+		min value lower in cluster than in initial dataset by: 0.0
+		25% value lower in cluster than in initial dataset by: 0.0
+		50% value lower in cluster than in initial dataset by: 0.0
+		75% value lower in cluster than in initial dataset by: 0.0
+		max value lower in cluster than in initial dataset by: 0.0

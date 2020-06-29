@@ -281,4 +281,3 @@ if __name__ == "__main__":
     kmeans.fit(data, False)
 
     write_clusters(kmeans.clusters)
-

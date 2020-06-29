@@ -1,0 +1,34 @@
+
+Cluster0:
+	Minimum overall value of BALANCE: 310.1547405
+	Minimum overall value of CREDIT_LIMIT: 1500.0
+	Minimum overall value of PAYMENTS: 453.8049655
+	Minimum overall value of MINIMUM_PAYMENTS: 185.71569499999998
+
+Cluster1:
+
+Cluster2:
+	Maximum overall value of CASH_ADVANCE_FREQUENCY: 0.333333
+	Minimum overall value of PURCHASES_TRX: 2.0
+
+Cluster3:
+	Maximum overall value of CASH_ADVANCE: 4066.421468
+
+Cluster4:
+	Maximum overall value of MINIMUM_PAYMENTS: 24302.09819
+
+Cluster5:
+	Maximum overall value of BALANCE: 8073.052656
+
+Cluster6:
+
+Cluster7:
+
+Cluster8:
+	Maximum overall value of ONEOFF_PURCHASES: 9449.07
+	Maximum overall value of INSTALLMENTS_PURCHASES: 1425.82
+	Maximum overall value of ONEOFF_PURCHASES_FREQUENCY: 0.666667
+	Maximum overall value of PURCHASES_TRX: 55.0
+	Maximum overall value of CREDIT_LIMIT: 15500.0
+	Maximum overall value of PAYMENTS: 25825.32482
+	Maximum overall value of PRC_FULL_PAYMENT: 0.166667

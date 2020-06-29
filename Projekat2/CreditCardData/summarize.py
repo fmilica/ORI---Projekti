@@ -1,6 +1,11 @@
 import math
+import random
 import pandas as pd
 from pandas.plotting import scatter_matrix
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+import numpy as np
+import pylab
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 # used for creating plot .png file
@@ -15,6 +20,10 @@ column_names = ['BALANCE', 'BALANCE_FREQUENCY', 'ONEOFF_PURCHASES',
                 'CREDIT_LIMIT', 'PAYMENTS', 'MINIMUM_PAYMENTS', 'PRC_FULL_PAYMENT', 'TENURE']
 row_names = ['mean', 'std', 'min', '25%', '50%', '75%', 'max']
 total_cluster_num = 9
+
+# determine lowest and highest values per column
+cluster_values = {column: [] for column in column_names}
+cluster_min_max = {cluster: [] for cluster in range(total_cluster_num)}
 
 
 def read_data(file_path):
@@ -58,24 +67,24 @@ def compare_all_clusters(initial_stats_df, all_cluster_stats):
 
 def compare_cluster(initial_stats_df, cluster_df, cluster_idx):
     f = open("data/sum-text/desc_cluster" + str(cluster_idx) + ".txt", "w")
-    print("Cluster number " + str(cluster_idx))
     f.write("Cluster number " + str(cluster_idx) + "\n")
     for col_name in column_names:
-        print("\tCurrent column " + col_name)
         f.write("\tCurrent column " + col_name + "\n")
         for row_name in row_names:
             init_value = initial_stats_df[col_name][row_name]
             cluster_value = cluster_df[col_name][row_name]
 
+            # append to lowest and highest dictionaries
+            if row_name == "50%":
+                cluster_values[col_name].append(cluster_value)
+
             diff = init_value - cluster_value
             if diff < 0:
-                print("\t\t" + row_name + " value higher in cluster by: " + str(abs(diff)))
-                f.write("\t\t" + row_name + " value higher in cluster by: " + str(abs(diff)) + "\n")
+                f.write("\t\t" + row_name + " value higher in cluster than in initial dataset by: "
+                        + str(abs(diff)) + "\n")
             else:
-                print("\t\t" + row_name + " value lower in cluster by: " + str(abs(diff)))
-                f.write("\t\t" + row_name + " value lower in cluster by: " + str(abs(diff)) + "\n")
-        print()
-    print()
+                f.write("\t\t" + row_name + " value lower in cluster than in initial dataset by: "
+                        + str(abs(diff)) + "\n")
     f.close()
 
 
@@ -149,15 +158,106 @@ def create_2d_clusters(all_cluster_data):
         i += 1
 
 
-if __name__ == '__main__':
+def pca_2d_clusters(all_cluster_data):
+    # Create scatter plots
+    i = 0
+    targets = []
+    final_dfs = []
+    for cluster in all_cluster_data:
+        # Add cluster index to target
+        targets.append("cluster" + str(i))
 
+        # Separating out the features
+        x = cluster.loc[:, column_names].values
+        data_length = np.shape(x)[0]
+        # Creating target array
+        y = np.full((1, data_length), "cluster" + str(i))
+        # Standardizing the features
+        x = StandardScaler().fit_transform(x)
+
+        # Reducing dimensions
+        pca = PCA(n_components=2)
+        principal_components = pca.fit_transform(x)
+        principal_df = pd.DataFrame(data=principal_components,
+                                   columns=['principal component 1', 'principal component 2'])
+        # Add cluster number attribute
+        cluster_number_col = pd.DataFrame({'CLUSTER': y[0]})
+        final_df = pd.concat([principal_df, cluster_number_col], axis=1)
+        final_dfs.append(final_df)
+        # increment index
+        i += 1
+
+    # concatenate all data frames
+    full_df = pd.concat(final_dfs)
+
+    # Plotting
+    fig = plt.figure(figsize=(8, 8))
+    ax = fig.add_subplot(1, 1, 1)
+    ax.set_xlabel('Principal Component 1', fontsize=15)
+    ax.set_ylabel('Principal Component 2', fontsize=15)
+    ax.set_title('2 component PCA', fontsize=20)
+
+    # generate colors
+    cm = pylab.get_cmap('gist_rainbow')
+    colors = []
+    for i in range(total_cluster_num):
+        color = cm(1. * i / total_cluster_num)
+        colors.append(color)
+
+    for target, c in zip(targets, colors):
+        indices_to_keep = full_df['CLUSTER'] == target
+        ax.scatter(full_df.loc[indices_to_keep, 'principal component 1'],
+                   full_df.loc[indices_to_keep, 'principal component 2'],
+                   c=c,
+                   s=50)
+    ax.legend(targets)
+    ax.grid()
+    plt.savefig('plots/2d_clusters.png', bbox_inches='tight')
+
+
+def describe_clusters():
+    # Find highest and lowest values in all clusters per column
+    for col_name, value_list in cluster_values.items():
+        minimum = min(value_list)
+        min_idxs = [i for i, x in enumerate(value_list) if x == minimum]
+        if len(min_idxs) == 1:
+            cluster_min_max[min_idxs[0]].append((col_name, minimum, 'min'))
+            # print("Minimum value for " + col_name + " is " + str(minimum) + " in cluster" + str(min_idxs[0]) + ".")
+        maximum = max(value_list)
+        max_idxs = [i for i, x in enumerate(value_list) if x == maximum]
+        if len(max_idxs) == 1:
+            cluster_min_max[max_idxs[0]].append((col_name, maximum, 'max'))
+            # print("Maximum value for " + col_name + " is " + str(maximum) + " in cluster" + str(max_idxs[0]) + ".")
+
+    # Write characteristics of each cluster to file
+    f = open("data/conclusion.txt", "w")
+    for cluster_idx, tuple_list in cluster_min_max.items():
+        f.write("\nCluster" + str(cluster_idx) + ":\n")
+        for tuple_value in tuple_list:
+            col_name, value, type = tuple_value
+            if type == 'min':
+                f.write("\tMinimum overall value of " + col_name + ": " + str(value) + "\n")
+            else:
+                f.write("\tMaximum overall value of " + col_name + ": " + str(value) + "\n")
+    f.close()
+
+
+if __name__ == '__main__':
+    # initial data statistics
     initial_data = read_data(data_file_path)
     initial_data_stats = initial_statistics(initial_data)
     # mean, median, quartiles
     clusters_stats = summarize_all_clusters(total_cluster_num)
     compare_all_clusters(initial_data_stats, clusters_stats)
+    # clusters with highest/lowest values
+    describe_clusters()
     # box-plots
     clusters_data = read_cluster_data(total_cluster_num)
     create_parallel_box_plots(initial_data, clusters_data)
+    # 2D representation (using PCA algorithm to reduce dimensionality)
+    pca_2d_clusters(clusters_data)
+
     # 2D representation (every attribute with every attribute)
-    create_2d_clusters(clusters_data)
+    #create_2d_clusters(clusters_data)
+
+    print("Summarization completed.")
