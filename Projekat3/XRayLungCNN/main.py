@@ -94,11 +94,11 @@ if __name__ == '__main__':
 
     # Convert the list into numpy arrays
     train_data = np.array(train_data)
-    train_data = train_data.reshape([len(train_data), img_rows, img_cols, 1])
+    #train_data = train_data.reshape((train_data.shape[0], img_rows, img_cols, 1))
     train_labels = np.array(train_labels)
 
     test_data = np.array(test_data)
-    test_data = test_data.reshape([len(test_data), img_rows, img_cols, 1])
+    #test_data = test_data.reshape([len(test_data), img_rows, img_cols, 1])
     test_labels = np.array(test_labels)
 
     '''
@@ -191,7 +191,7 @@ if __name__ == '__main__':
 
     # Train and evaluation
     model.fit(train_data, train_labels, batch_size=batch_size, epochs=epochs, validation_split=0.2,
-              shuffle=True, verbose=2)
+              shuffle=True, verbose=1)
     #model.fit_generator(generator=train_generator, validation_data=validation_generator, epochs=epochs, verbose=1)
     #model.fit_generator(generator=train_generator, )
     # Show results
