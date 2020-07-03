@@ -18,10 +18,11 @@ column_names = ['BALANCE', 'BALANCE_FREQUENCY', 'PURCHASES', 'ONEOFF_PURCHASES',
                 'CREDIT_LIMIT', 'PAYMENTS', 'MINIMUM_PAYMENTS', 'PRC_FULL_PAYMENT', 'TENURE']
 
 column_new_names = ['BALANCE', 'BALANCE_FREQUENCY', 'ONEOFF_PURCHASES',
-                'INSTALLMENTS_PURCHASES', 'CASH_ADVANCE',
-                'ONEOFF_PURCHASES_FREQUENCY', 'PURCHASES_INSTALLMENTS_FREQUENCY',
-                'CASH_ADVANCE_FREQUENCY', 'CASH_ADVANCE_TRX', 'PURCHASES_TRX',
-                'CREDIT_LIMIT', 'PAYMENTS', 'MINIMUM_PAYMENTS', 'PRC_FULL_PAYMENT', 'TENURE']
+                    'INSTALLMENTS_PURCHASES', 'CASH_ADVANCE',
+                    'ONEOFF_PURCHASES_FREQUENCY', 'PURCHASES_INSTALLMENTS_FREQUENCY',
+                    'CASH_ADVANCE_FREQUENCY', 'CASH_ADVANCE_TRX', 'PURCHASES_TRX',
+                    'CREDIT_LIMIT', 'PAYMENTS', 'MINIMUM_PAYMENTS', 'PRC_FULL_PAYMENT', 'TENURE',
+                    'CLUSTER_NUM']
 
 '''
 class Point:
@@ -215,6 +216,14 @@ def optimal_k_value(upper_limit, input_data):
 
 
 def write_clusters(clusters):
+    # dodavanje kolone sa brojem klastera kome pripadaju
+    i = 0
+    for cluster in clusters:
+        for item in cluster.data:
+            item.append(i)
+        i += 1
+
+    # upis u fajl pojedinacnih klastera
     for cluster in clusters:
         file_name = "data/clusters/cluster" + str(clusters.index(cluster)) + ".csv"
         with open(file_name, mode='w', newline='\n') as cluster_file:
@@ -223,6 +232,16 @@ def write_clusters(clusters):
             for row in cluster.data:
                 cluster_writer.writerow(row)
 
+    # upis u fajl celokupnih podataka sa oznakom klastera
+    all_clusters = []
+    for cluster in clusters:
+        all_clusters.extend(cluster.data)
+    file_name = "data/clustered_data.csv"
+    with open(file_name, mode='w', newline='\n') as cluster_file:
+        cluster_writer = csv.writer(cluster_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        cluster_writer.writerow(column_new_names)
+        for row in all_clusters:
+            cluster_writer.writerow(row)
     print("Cluster files written")
 
 

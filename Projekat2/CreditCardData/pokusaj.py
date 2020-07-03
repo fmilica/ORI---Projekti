@@ -17,26 +17,11 @@ column_names = ['BALANCE', 'BALANCE_FREQUENCY', 'PURCHASES', 'ONEOFF_PURCHASES',
                 'CASH_ADVANCE_FREQUENCY', 'CASH_ADVANCE_TRX', 'PURCHASES_TRX',
                 'CREDIT_LIMIT', 'PAYMENTS', 'MINIMUM_PAYMENTS', 'PRC_FULL_PAYMENT', 'TENURE']
 
-
-def pretty_print(df):
-    print(df)
-    display(HTML(df.to_html().replace("\\n", "<br>")))
+data_file_path = 'data/clustered_data.csv'
 
 
-def kmeans_elbow_viz(data):
-    sum_of_squared_distance = []
-    n_cluster = range(1, 11)
-
-    for k in n_cluster:
-        kmean_model = KMeans(n_clusters=k)
-        kmean_model.fit(data)
-        sum_of_squared_distance.append(kmean_model.inertia_)
-
-    plt.plot(n_cluster, sum_of_squared_distance, 'bx-')
-    plt.xlabel('k')
-    plt.ylabel('Sum of squared distances')
-    plt.title('Elbow method for optimal K')
-    plt.show()
+def save_rules(df):
+    df.to_csv('data/conclusions/cluster_rule_sum.csv')
 
 
 def get_class_rules(tree: DecisionTreeClassifier, feature_names: list):
@@ -96,33 +81,21 @@ def cluster_report(data: pd.DataFrame, clusters, min_samples_leaf=50, pruning_le
     cluster_instance_df.columns = ['class_name', 'instance_count']
     report_df = pd.DataFrame(report_class_list, columns=['class_name', 'rule_list'])
     report_df = pd.merge(cluster_instance_df, report_df, on='class_name', how='left')
-    pretty_print(report_df.sort_values(by='class_name')[['class_name', 'instance_count', 'rule_list']])
+    save_rules(report_df.sort_values(by='class_name')[['class_name', 'instance_count', 'rule_list']])
 
 
 if __name__ == '__main__':
-    data_file_path = "data/credit_card_data.csv"
-    credit_card_dataset = pd.read_csv(data_file_path)
-    credit_card_dataset = credit_card_dataset.drop(credit_card_dataset.columns[0], axis=1)
-    X_df = credit_card_dataset.fillna(0)
 
-    pipeline = Pipeline(steps=[
-        ('scaler', StandardScaler()),
-        ('dim_reduction', PCA(n_components=2, random_state=0))
-    ])
+    clustered_credit_card_data = pd.read_csv(data_file_path)
+    x_df = clustered_credit_card_data.iloc[:, :-1]
+    y_cluster_num = clustered_credit_card_data.iloc[:, -1]
 
-    pc = pipeline.fit_transform(X_df)
+    # Create report
+    cluster_report(x_df, y_cluster_num)
 
-    # optimalan broj klastera
-    #kmeans_elbow_viz(pc)
-
-    kmeans_model = KMeans(n_clusters=4)
-    y_cluster = kmeans_model.fit_predict(pc)
-
-    cluster_report(X_df, y_cluster)
-
-    # Create Model
-    tree1 = DecisionTreeClassifier(min_samples_leaf=50, ccp_alpha=0.01)
-    tree1.fit(X_df, y_cluster)
+    # Create Decision Tree Structure
+    dec_tree = DecisionTreeClassifier(min_samples_leaf=50, ccp_alpha=0.01)
+    dec_tree.fit(x_df, y_cluster_num)
     plt.figure()
-    tree.plot_tree(tree1)
-    plt.show()
+    tree.plot_tree(dec_tree)
+    plt.savefig('data/conclusions/cluster_tree.png')

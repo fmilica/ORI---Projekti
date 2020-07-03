@@ -18,6 +18,11 @@ column_names = ['BALANCE', 'BALANCE_FREQUENCY', 'ONEOFF_PURCHASES',
                 'ONEOFF_PURCHASES_FREQUENCY', 'PURCHASES_INSTALLMENTS_FREQUENCY',
                 'CASH_ADVANCE_FREQUENCY', 'CASH_ADVANCE_TRX', 'PURCHASES_TRX',
                 'CREDIT_LIMIT', 'PAYMENTS', 'MINIMUM_PAYMENTS', 'PRC_FULL_PAYMENT', 'TENURE']
+all_column_names = ['BALANCE', 'BALANCE_FREQUENCY', 'PURCHASES', 'ONEOFF_PURCHASES',
+                    'INSTALLMENTS_PURCHASES', 'CASH_ADVANCE', 'PURCHASES_FREQUENCY',
+                    'ONEOFF_PURCHASES_FREQUENCY', 'PURCHASES_INSTALLMENTS_FREQUENCY',
+                    'CASH_ADVANCE_FREQUENCY', 'CASH_ADVANCE_TRX', 'PURCHASES_TRX',
+                    'CREDIT_LIMIT', 'PAYMENTS', 'MINIMUM_PAYMENTS', 'PRC_FULL_PAYMENT', 'TENURE']
 row_names = ['mean', 'std', 'min', '25%', '50%', '75%', 'max']
 total_cluster_num = 4
 
@@ -34,6 +39,12 @@ def read_data(file_path):
     data = data.fillna(0)
     data.apply(pd.to_numeric)
     return data
+
+
+def normalize_data(data):
+    normalized = StandardScaler().fit_transform(data)
+    normalized_df = pd.DataFrame(normalized, columns=all_column_names)
+    return normalized_df
 
 
 def initial_statistics(credit_card_data):
@@ -152,10 +163,12 @@ def create_2d_clusters(all_cluster_data):
     # Create scatter matrices
     i = 0
     for cluster in all_cluster_data:
+        cluster = cluster.iloc[:, :-1]
         scatter_matrix(cluster, alpha=0.2, figsize=(6, 6), diagonal='kde')
         # Save the figure
-        plt.savefig('matrices/' + 'matrix-cluster' + str(i) + '.png', bbox_inches='tight')
+        plt.savefig('matrices/' + 'matrix-cluster' + str(i) + '.png')
         i += 1
+        print("Created " + str(i) + ". matrix.")
 
 
 def pca_2d_clusters(all_cluster_data):
@@ -230,7 +243,7 @@ def describe_clusters():
             # print("Maximum value for " + col_name + " is " + str(maximum) + " in cluster" + str(max_idxs[0]) + ".")
 
     # Write characteristics of each cluster to file
-    f = open("data/conclusion.txt", "w")
+    f = open("data/conclusions/conclusion.txt", "w")
     for cluster_idx, tuple_list in cluster_min_max.items():
         f.write("\nCluster" + str(cluster_idx) + ":\n")
         for tuple_value in tuple_list:
@@ -246,14 +259,15 @@ if __name__ == '__main__':
     # initial data statistics
     initial_data = read_data(data_file_path)
     initial_data_stats = initial_statistics(initial_data)
+    normalized_initial_data_stats = initial_statistics(normalize_data(initial_data))
     # mean, median, quartiles
     clusters_stats = summarize_all_clusters(total_cluster_num)
-    compare_all_clusters(initial_data_stats, clusters_stats)
+    compare_all_clusters(normalized_initial_data_stats, clusters_stats)
     # clusters with highest/lowest values
     describe_clusters()
     # box-plots
     clusters_data = read_cluster_data(total_cluster_num)
-    create_parallel_box_plots(initial_data, clusters_data)
+    create_parallel_box_plots(normalize_data(initial_data), clusters_data)
     # 2D representation (using PCA algorithm to reduce dimensionality)
     pca_2d_clusters(clusters_data)
 
