@@ -8,7 +8,7 @@ import math
 import csv
 import seaborn as sb
 
-k_max = 20
+k_max = 4
 
 data_file_path = "data/credit_card_data.csv"
 column_names = ['BALANCE', 'BALANCE_FREQUENCY', 'PURCHASES', 'ONEOFF_PURCHASES',
@@ -205,7 +205,7 @@ def optimal_k_value(upper_limit, input_data):
     for n_clusters in range(2, upper_limit):
         print("Number of clusters: " + str(n_clusters))
         kmeans = KMeans(n_clusters=n_clusters, max_iter=100)
-        kmeans.fit(input_data, False)
+        kmeans.fit(input_data, True)
         sse = kmeans.sum_squared_error()
         sum_squared_errors.append(sse)
     plt.plot(sum_squared_errors)
@@ -275,9 +275,10 @@ if __name__ == "__main__":
     # Odredjivanje optimalne k-vrednosti
     #optimal_k_value(k_max + 1, data)
 
-    optimal_k = 9
+    optimal_k = 4
     print("Optimal number of clusters: " + str(optimal_k))
     kmeans = KMeans(n_clusters=optimal_k, max_iter=100)
-    kmeans.fit(data, False)
+    kmeans.fit(data, True)
 
     write_clusters(kmeans.clusters)
+

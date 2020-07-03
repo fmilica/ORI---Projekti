@@ -1,34 +1,27 @@
 
 Cluster0:
-	Minimum overall value of BALANCE: 310.1547405
-	Minimum overall value of CREDIT_LIMIT: 1500.0
-	Minimum overall value of PAYMENTS: 453.8049655
-	Minimum overall value of MINIMUM_PAYMENTS: 185.71569499999998
+	Minimum overall value of INSTALLMENTS_PURCHASES: -0.4545929346871266
+	Maximum overall value of CASH_ADVANCE: 1.1564575232278709
+	Minimum overall value of PURCHASES_INSTALLMENTS_FREQUENCY: -0.9170486291668528
+	Maximum overall value of CASH_ADVANCE_FREQUENCY: 1.4067205640978109
+	Maximum overall value of CASH_ADVANCE_TRX: 1.1357230033080197
+	Minimum overall value of PURCHASES_TRX: -0.5515989423452268
 
 Cluster1:
 
 Cluster2:
-	Maximum overall value of CASH_ADVANCE_FREQUENCY: 0.333333
-	Minimum overall value of PURCHASES_TRX: 2.0
+	Maximum overall value of BALANCE: 1.1360988619613483
+	Maximum overall value of ONEOFF_PURCHASES: 2.7028471717053275
+	Maximum overall value of INSTALLMENTS_PURCHASES: 3.288700631018611
+	Maximum overall value of ONEOFF_PURCHASES_FREQUENCY: 2.058758797385228
+	Maximum overall value of PURCHASES_INSTALLMENTS_FREQUENCY: 1.5990755122353495
+	Maximum overall value of PURCHASES_TRX: 3.752973974559758
+	Maximum overall value of CREDIT_LIMIT: 1.6504807748191708
+	Maximum overall value of PAYMENTS: 2.419829964988849
+	Maximum overall value of MINIMUM_PAYMENTS: 0.215294846205972
 
 Cluster3:
-	Maximum overall value of CASH_ADVANCE: 4066.421468
-
-Cluster4:
-	Maximum overall value of MINIMUM_PAYMENTS: 24302.09819
-
-Cluster5:
-	Maximum overall value of BALANCE: 8073.052656
-
-Cluster6:
-
-Cluster7:
-
-Cluster8:
-	Maximum overall value of ONEOFF_PURCHASES: 9449.07
-	Maximum overall value of INSTALLMENTS_PURCHASES: 1425.82
-	Maximum overall value of ONEOFF_PURCHASES_FREQUENCY: 0.666667
-	Maximum overall value of PURCHASES_TRX: 55.0
-	Maximum overall value of CREDIT_LIMIT: 15500.0
-	Maximum overall value of PAYMENTS: 25825.32482
-	Maximum overall value of PRC_FULL_PAYMENT: 0.166667
+	Minimum overall value of BALANCE: -0.5146579159177798
+	Minimum overall value of CREDIT_LIMIT: -0.6030495922010848
+	Minimum overall value of PAYMENTS: -0.41830040288374626
+	Minimum overall value of MINIMUM_PAYMENTS: -0.26529751393976053

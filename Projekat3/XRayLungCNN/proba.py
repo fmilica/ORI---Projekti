@@ -11,7 +11,7 @@ from tensorflow.keras.layers import Conv2D, Activation, Dropout, MaxPooling2D, F
 from tensorflow.keras import regularizers
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.losses import categorical_crossentropy
-from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.optimizers import Adam, Adadelta, Adamax
 from tensorflow.keras.callbacks import TensorBoard
 
 '''
@@ -42,8 +42,8 @@ BATCH_SIZE = 32
 EPOCHS = 20
 #64x4-OneDropout-Batch-16
 BEST_MODEL_NAME = "X-Ray-CNN-64x4-OneDropout-Batch-16"
-SAVE_MODEL_NAME = "X-Ray-CNN-64x4-NoDropout-Batch-32"
-MODEL_NAME = SAVE_MODEL_NAME + "{}".format(int(time.time()))
+SAVE_MODEL_NAME = "X-Ray-CNN-64x4-OneDropout-Batch-32"
+MODEL_NAME = SAVE_MODEL_NAME + "-{}".format(int(time.time()))
 tensor_board = TensorBoard(log_dir="logs/{}".format(MODEL_NAME))
 
 
@@ -238,12 +238,12 @@ if __name__ == '__main__':
     #pickle_dump_test_data(test_data, test_labels)
 
     # read preprocessed training and test data
-    #train_data, train_labels = pickle_load_train_set()
-    test_data, test_labels = pickle_load_test_set()
+    train_data, train_labels = pickle_load_train_set()
+    #test_data, test_labels = pickle_load_test_set()
 
     # create CNN model
-    #cnn_model = create_model()
-    #compile_fit_model(cnn_model, train_data, train_labels)
+    cnn_model = create_model()
+    compile_fit_model(cnn_model, train_data, train_labels)
 
     # load the trained model
     #saved_model = load_model(SAVE_MODEL_NAME + '.model')
@@ -252,8 +252,8 @@ if __name__ == '__main__':
     #test_eval = saved_model.evaluate(test_data, test_labels, verbose=1, batch_size=32)
 
     # BEST MODEL
-    best_model = load_model(BEST_MODEL_NAME + '.model')
-    test_eval = best_model.evaluate(test_data, test_labels, verbose=1, batch_size=32)
+    #best_model = load_model(BEST_MODEL_NAME + '.model')
+    #test_eval = best_model.evaluate(test_data, test_labels, verbose=1, batch_size=32)
 
     # test CNN model on not-seen-before data
     # OVDE NESTO NE RADI ALI SADA NE VIDIM TACNO STA

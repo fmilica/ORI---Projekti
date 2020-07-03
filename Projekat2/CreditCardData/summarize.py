@@ -19,7 +19,7 @@ column_names = ['BALANCE', 'BALANCE_FREQUENCY', 'ONEOFF_PURCHASES',
                 'CASH_ADVANCE_FREQUENCY', 'CASH_ADVANCE_TRX', 'PURCHASES_TRX',
                 'CREDIT_LIMIT', 'PAYMENTS', 'MINIMUM_PAYMENTS', 'PRC_FULL_PAYMENT', 'TENURE']
 row_names = ['mean', 'std', 'min', '25%', '50%', '75%', 'max']
-total_cluster_num = 9
+total_cluster_num = 4
 
 # determine lowest and highest values per column
 cluster_values = {column: [] for column in column_names}
