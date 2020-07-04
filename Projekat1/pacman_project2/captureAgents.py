@@ -19,7 +19,7 @@
 from game import Agent
 import distanceCalculator
 from util import nearestPoint
-import util
+import util, time, random
 
 # Note: the following class is not used, but is kept for backwards
 # compatibility with team submissions that try to import it.
@@ -88,6 +88,8 @@ class CaptureAgent(Agent):
     # Access to the graphics
     self.display = None
 
+    self.start = None
+
   def registerInitialState(self, gameState):
     """
     This method handles the initial setup of the
@@ -98,6 +100,7 @@ class CaptureAgent(Agent):
     between each pair of positions, so your agents can use:
     self.distancer.getDistance(p1, p2)
     """
+    self.start = gameState.getAgentPosition(self.index)
     self.red = gameState.isOnRedTeam(self.index)
     self.distancer = distanceCalculator.Distancer(gameState.data.layout)
 
@@ -111,12 +114,66 @@ class CaptureAgent(Agent):
   def final(self, gameState):
     self.observationHistory = []
 
-  def registerTeam(self, agentsOnTeam):
+  def observeTransition(self, state, action, nextState, deltaReward):
     """
-    Fills the self.agentsOnTeam field with a list of the
-    indices of the agents on your team.
+        Called by environment to inform agent that a transition has
+        been observed. This will result in a call to self.update
+        on the same arguments
+
+        NOTE: Do *not* override or call this function
     """
-    self.agentsOnTeam = agentsOnTeam
+    self.episodeRewards += deltaReward
+    self.update(state, action, nextState, deltaReward)
+
+  def stopEpisode(self):
+    """
+      Called by environment when episode is done
+    """
+    if self.episodesSoFar < self.numTraining:
+      self.accumTrainRewards += self.episodeRewards
+    else:
+      self.accumTestRewards += self.episodeRewards
+    self.episodesSoFar += 1
+    if self.episodesSoFar >= self.numTraining:
+      # Take off the training wheels
+      self.epsilon = 0.0  # no exploration
+      self.alpha = 0.0  # no learning
+
+  def qfinal(self, state):
+    deltaReward = state.getScore() - self.lastState.getScore()
+    self.observeTransition(self.lastState, self.lastAction, state, deltaReward)
+    self.stopEpisode()
+
+    # Make sure we have this var
+    if not 'episodeStartTime' in self.__dict__:
+      self.episodeStartTime = time.time()
+    if not 'lastWindowAccumRewards' in self.__dict__:
+      self.lastWindowAccumRewards = 0.0
+    self.lastWindowAccumRewards += state.getScore()
+
+    NUM_EPS_UPDATE = 100
+    if self.episodesSoFar % NUM_EPS_UPDATE == 0:
+      print('Reinforcement Learning Status:')
+      windowAvg = self.lastWindowAccumRewards / float(NUM_EPS_UPDATE)
+      if self.episodesSoFar <= self.numTraining:
+        trainAvg = self.accumTrainRewards / float(self.episodesSoFar)
+        print( '\tCompleted %d out of %d training episodes' % (
+          self.episodesSoFar, self.numTraining))
+        print('\tAverage Rewards over all training: %.2f' % (
+          trainAvg))
+      else:
+        testAvg = float(self.accumTestRewards) / (self.episodesSoFar - self.numTraining)
+        print('\tCompleted %d test episodes' % (self.episodesSoFar - self.numTraining))
+        print('\tAverage Rewards over testing: %.2f' % testAvg)
+      print('\tAverage Rewards for last %d episodes: %.2f' % (
+        NUM_EPS_UPDATE, windowAvg))
+      print('\tEpisode took %.2f seconds' % (time.time() - self.episodeStartTime))
+      self.lastWindowAccumRewards = 0.0
+      self.episodeStartTime = time.time()
+
+    if self.episodesSoFar == self.numTraining:
+      msg = 'Training Done (turning off epsilon and alpha)'
+      print('%s\n%s' % (msg, '-' * len(msg)))
 
   def observationFunction(self, gameState):
     " Changing this won't affect pacclient.py, but will affect capture.py "
@@ -171,6 +228,11 @@ class CaptureAgent(Agent):
   #######################
   # Convenience Methods #
   #######################
+
+  def isOnRedTeam(self):
+    if self.red:
+      return True
+    return False
 
   def getFood(self, gameState):
     """

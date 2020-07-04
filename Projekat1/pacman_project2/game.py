@@ -329,6 +329,14 @@ class Actions:
         return (dx * speed, dy * speed)
     directionToVector = staticmethod(directionToVector)
 
+    def getPacmanPosition( self ):
+        return self.data.agentStates[0].getPosition()
+
+    def getGhostPosition( self, agentIndex ):
+        if agentIndex == 0:
+            raise Exception("Pacman's index passed to getGhostPosition")
+        return self.data.agentStates[agentIndex].getPosition()
+
     def getPossibleActions(config, walls):
         possible = []
         x, y = config.pos

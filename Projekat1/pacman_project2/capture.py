@@ -177,6 +177,21 @@ class GameState:
     """
     return self.data.layout.walls
 
+  def getFood(self):
+    """
+    Returns a Grid of boolean food indicator variables.
+
+    Grids can be accessed via list notation, so to check
+    if there is food at (x,y), just call
+
+    currentFood = state.getFood()
+    if currentFood[x][y] == True: ...
+    """
+    if self.red:
+      return self.getBlueFood()
+    else:
+      return self.getRedFood()
+
   def hasFood(self, x, y):
     """
     Returns true if the location (x,y) has food, regardless of
@@ -210,6 +225,20 @@ class GameState:
     Returns true if the agent with the given agentIndex is on the red team.
     """
     return self.teams[agentIndex]
+
+  def getGhostStates(self):
+    return self.data.agentStates[1:]
+
+  def getPacmanPosition(self):
+    return self.data.agentStates[0].getPosition()
+
+  def getGhostPosition(self, agentIndex):
+    if agentIndex == 0:
+      raise Exception("Pacman's index passed to getGhostPosition")
+    return self.data.agentStates[agentIndex].getPosition()
+
+  def getGhostPositions(self):
+    return [s.getPosition() for s in self.getGhostStates()]
 
   def getAgentDistances(self):
     """
@@ -465,6 +494,8 @@ class AgentRules:
     agentState = state.getAgentState(agentIndex)
     conf = agentState.configuration
     possibleActions = Actions.getPossibleActions( conf, state.data.layout.walls )
+    if Directions.STOP in possibleActions:
+      possibleActions.remove(Directions.STOP)
     return AgentRules.filterForAllowedActions( agentState, possibleActions)
   getLegalActions = staticmethod( getLegalActions )
 
