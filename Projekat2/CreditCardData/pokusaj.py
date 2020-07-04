@@ -85,7 +85,6 @@ def cluster_report(data: pd.DataFrame, clusters, min_samples_leaf=50, pruning_le
 
 
 if __name__ == '__main__':
-
     clustered_credit_card_data = pd.read_csv(data_file_path)
     x_df = clustered_credit_card_data.iloc[:, :-1]
     y_cluster_num = clustered_credit_card_data.iloc[:, -1]

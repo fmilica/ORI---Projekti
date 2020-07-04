@@ -7,7 +7,8 @@ import pandas as pd
 from tqdm import tqdm
 import cv2
 from tensorflow.keras.models import Sequential, load_model
-from tensorflow.keras.layers import Conv2D, Activation, Dropout, MaxPooling2D, Flatten, Dense, LeakyReLU
+from tensorflow.keras.layers import Conv2D, Activation, Dropout, MaxPooling2D, Flatten, Dense, \
+    LeakyReLU, BatchNormalization
 from tensorflow.keras import regularizers
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.losses import categorical_crossentropy
@@ -33,16 +34,19 @@ Smernice za poboljsanje:
 '''
 
 TRAIN_DIR = Path.cwd() / Path("data/train")
-TEST_DIR = Path.cwd() / Path("data/test")
-TEST_LABELS = Path.cwd() / Path("data/metadata/chest_xray_metadata.csv")
+TEST_DIR = Path.cwd() / Path("data/chest-xray-dataset-test/test")
+TEST_LABELS = Path.cwd() / Path("data/chest-xray-dataset-test/chest_xray_test_dataset.csv")
 CATEGORIES = ["NORMAL", "BACTERIA", "VIRUS"]
 NUM_CLASSES = 3
 IMG_ROWS, IMG_COLS = 64, 64
 BATCH_SIZE = 32
 EPOCHS = 20
 #64x4-OneDropout-Batch-16
-BEST_MODEL_NAME = "X-Ray-CNN-64x4-OneDropout-Batch-16"
-SAVE_MODEL_NAME = "X-Ray-CNN-64x4-OneDropout-Batch-32"
+# mozda je cak pet slojeva bolje
+# X-Ray-CNN-64x5-TwoDropout-Batch-32-l1-0x001
+# sad cemo da dodamo dropout posle svakog
+#BEST_MODEL_NAME = "X-Ray-CNN-64x4-OneDropout-Batch-32-l1-0x001"
+SAVE_MODEL_NAME = "X-Ray-CNN-64x5-OneDropout-Batch-32-l1-0x001"
 MODEL_NAME = SAVE_MODEL_NAME + "-{}".format(int(time.time()))
 tensor_board = TensorBoard(log_dir="logs/{}".format(MODEL_NAME))
 
@@ -177,16 +181,20 @@ def create_model():
     model.add(Conv2D(64, padding='same', kernel_size=(3, 3)))
     model.add(Activation("relu"))
     model.add(MaxPooling2D(pool_size=(2, 2)))
+
+    model.add(Conv2D(64, padding='same', kernel_size=(3, 3)))
+    model.add(Activation("relu"))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
     #model.add(Dropout(0.3))
 
     model.add(Conv2D(64, padding='same', kernel_size=(3, 3)))
     model.add(Activation("relu"))
     model.add(MaxPooling2D(pool_size=(2, 2)))
-    #model.add(Dropout(0.4))
+    model.add(Dropout(0.4))
 
     model.add(Flatten())
 
-    model.add(Dense(3))
+    model.add(Dense(3, kernel_regularizer=regularizers.l1(0.001)))
     model.add(Activation("softmax"))
 
     model.summary()
