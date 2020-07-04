@@ -1,0 +1,29 @@
+
+Cluster0:
+	Maximum overall value of ONEOFF_PURCHASES: 0.8284452230616851
+	Maximum overall value of INSTALLMENTS_PURCHASES: 0.8283762113372409
+	Maximum overall value of ONEOFF_PURCHASES_FREQUENCY: 1.8352919644499457
+	Maximum overall value of PURCHASES_INSTALLMENTS_FREQUENCY: 1.38939933915988
+	Maximum overall value of PURCHASES_TRX: 1.339194768818645
+	Maximum overall value of CREDIT_LIMIT: 0.8260184454215164
+	Maximum overall value of PAYMENTS: 0.4242861299055832
+	Maximum overall value of PRC_FULL_PAYMENT: -0.2406841200439453
+
+Cluster1:
+	Maximum overall value of BALANCE: 1.101517557608354
+	Minimum overall value of INSTALLMENTS_PURCHASES: -0.4545929346871266
+	Maximum overall value of CASH_ADVANCE: 1.1824007732805975
+	Minimum overall value of PURCHASES_INSTALLMENTS_FREQUENCY: -0.9170486291668528
+	Maximum overall value of CASH_ADVANCE_FREQUENCY: 1.545524857469815
+	Maximum overall value of CASH_ADVANCE_TRX: 1.1357230033080197
+	Minimum overall value of PURCHASES_TRX: -0.5515989423452268
+	Maximum overall value of MINIMUM_PAYMENTS: 0.15963582297058937
+
+Cluster2:
+	Minimum overall value of CREDIT_LIMIT: -0.5480854369079079
+
+Cluster3:
+	Minimum overall value of BALANCE: -0.7380516001227123
+	Minimum overall value of BALANCE_FREQUENCY: -1.7844096897824366
+	Minimum overall value of PAYMENTS: -0.4592972428721785
+	Minimum overall value of MINIMUM_PAYMENTS: -0.3145098493030294
