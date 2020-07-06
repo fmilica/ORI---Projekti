@@ -1,27 +1,26 @@
 
 Cluster0:
-	Minimum overall value of BALANCE: -0.5684942224528571
-	Minimum overall value of BALANCE_FREQUENCY: -0.08498969278831016
-	Minimum overall value of CREDIT_LIMIT: -0.8229062133737927
-	Minimum overall value of PAYMENTS: -0.4940687575193073
-	Minimum overall value of MINIMUM_PAYMENTS: -0.30021358086669164
-	Minimum overall value of TENURE: -3.375322032372316
+	Minimum overall value of CREDIT_LIMIT: -0.5480854369079079
+	Minimum overall value of PAYMENTS: -0.4070678169583012
 
 Cluster1:
+	Maximum overall value of ONEOFF_PURCHASES: 1.4383341170649169
+	Maximum overall value of INSTALLMENTS_PURCHASES: 1.2685851373144783
+	Maximum overall value of ONEOFF_PURCHASES_FREQUENCY: 2.11462508661769
+	Maximum overall value of PURCHASES_INSTALLMENTS_FREQUENCY: 1.38939933915988
+	Maximum overall value of PURCHASES_TRX: 2.1437878373990156
+	Maximum overall value of CREDIT_LIMIT: 1.1008392218874012
+	Maximum overall value of PAYMENTS: 0.9131544545746357
 
 Cluster2:
-	Maximum overall value of BALANCE: 1.2063088371710464
-	Maximum overall value of CASH_ADVANCE: 1.1471785564686867
-	Maximum overall value of CASH_ADVANCE_FREQUENCY: 1.4067205640978109
+	Maximum overall value of BALANCE: 1.244822723888401
+	Maximum overall value of CASH_ADVANCE: 1.2362610461265606
+	Maximum overall value of CASH_ADVANCE_FREQUENCY: 1.7095719736077295
 	Maximum overall value of CASH_ADVANCE_TRX: 1.1357230033080197
 	Minimum overall value of PURCHASES_TRX: -0.5515989423452268
-	Maximum overall value of MINIMUM_PAYMENTS: 0.19164524506105046
+	Maximum overall value of MINIMUM_PAYMENTS: 0.19297206919814963
 
 Cluster3:
-	Maximum overall value of ONEOFF_PURCHASES: 0.7497405535706226
-	Maximum overall value of INSTALLMENTS_PURCHASES: 0.7607351206377152
-	Maximum overall value of ONEOFF_PURCHASES_FREQUENCY: 1.8352919644499457
-	Maximum overall value of PURCHASES_INSTALLMENTS_FREQUENCY: 1.38939933915988
-	Maximum overall value of PURCHASES_TRX: 1.258735461960608
-	Maximum overall value of PAYMENTS: 0.3767267508406983
-	Maximum overall value of PRC_FULL_PAYMENT: -0.2406841200439453
+	Minimum overall value of BALANCE: -0.6514630664239203
+	Minimum overall value of MINIMUM_PAYMENTS: -0.28026661865429664
+	Maximum overall value of PRC_FULL_PAYMENT: -0.03717956560984359
