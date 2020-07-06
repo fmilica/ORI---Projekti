@@ -172,7 +172,7 @@ class ProbaAgent(CaptureAgent):
                 action = self.computeActionFromQValues(state)
 
         foodCarry = state.getAgentState(self.index).numCarrying
-        if foodCarry > 3:
+        if foodCarry > 0:
             bestDist = 9999
             bestAction = None
             for action in legalActions:
@@ -197,7 +197,7 @@ class ProbaAgent(CaptureAgent):
         p = nextState.getAgentState(self.index).numCarrying - state.getAgentState(self.index).numCarrying
         if p > 0:
             reward += 1
-            print('pojeo je hranu')
+            #print('pojeo je hranu')
 
         #p = nextState.getAgentState(self.index).numCarrying - state.getAgentState(self.index).numCarrying
         #print('---------------------')
@@ -249,7 +249,7 @@ class ProbaAgent(CaptureAgent):
             if g in opponents:
                 #print(manhattanDistance(g, state.getAgentState(self.index).getPosition()))
                 if manhattanDistance(g, state.getAgentState(self.index).getPosition()) < 1:
-                    print("POJEO SAM GOVNO")
+                    #print("POJEO SAM GOVNO")
                     reward -= 5
         #print(reward)
         return reward
@@ -420,6 +420,12 @@ class ProbaDefensiveAgent(CaptureAgent):
         legalActions = state.getLegalActions(self.index)
         action = None
 
+        for a in legalActions:
+            successor = self.getSuccessor(state, a)
+            nextState = successor.getAgentState(self.index)
+            if nextState.isPacman:
+                legalActions.remove(a)
+
         if len(legalActions) > 0:
             if util.flipCoin(self.epsilon):
                 action = random.choice(legalActions)
@@ -446,7 +452,7 @@ class ProbaDefensiveAgent(CaptureAgent):
             #opponents = [nextState.getAgentPosition(o) for o in oppon]
             # kazna ako predje
             if state.getAgentPosition(self.index)[0] > state.getWalls().width // 2:
-                reward -= 5
+                reward -= 1000
             # protivnik pojeo hranu
             food = nextState.getRedFood()
             for pos in opponents:
@@ -481,10 +487,10 @@ class ProbaDefensiveAgent(CaptureAgent):
             #print(self.getMazeDistance(g, nextState.getAgentPosition(self.index)))
             if self.getMazeDistance(g, nextState.getAgentPosition(self.index)) <= 1:
                 if myGhost.scaredTimer > 0:
-                    print("pojeo ga je")
+                    #print("pojeo ga je")
                     reward -= 6
                 else:
-                    print("pojeo je pekmena")
+                    #print("pojeo je pekmena")
                     reward += 10
         #print('-----------------------------')
         return reward

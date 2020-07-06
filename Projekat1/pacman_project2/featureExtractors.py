@@ -191,8 +191,7 @@ class SimpleExtractor(FeatureExtractor):
                 #posto mu je duh blizu idi ka kapsuli
                 if len(capsules) > 0:
                     capsule_distance = manhattanDistance(capsules[0], (next_x, next_y))
-                    if capsule_distance < 5:
-                        features['capsule-distance'] = min(dists)*10 / (walls.width * walls.height)
+                    features['capsule-distance'] = capsule_distance*10 / (walls.width * walls.height)
                 # ili idi ka svojoj polovini
                 else:
                     if home_distance < 8:
@@ -232,8 +231,6 @@ class SimpleExtractor(FeatureExtractor):
                 features['stay-on-your-side'] = 10
             else:
                 features['stay-on-your-side'] = -5
-
-            #ako nema nikoga na njegovoj strani, prebaci
         else:
             oppon = state.getRedTeamIndices()
             opponents = [state.getAgentPosition(o) for o in oppon]
@@ -246,12 +243,18 @@ class SimpleExtractor(FeatureExtractor):
 
         # Computes distance to invaders we can see
         enemies = [successor.getAgentState(i) for i in oppon]
+        pacmans = []
+        for enemy in enemies:
+            if enemy.isPacman:
+                pacmans.append(enemy)
         invaders = [a for a in enemies if a.getPosition() != None]
         features['numInvaders'] = len(invaders)
         if len(invaders) > 0:
             dists = [agent.getMazeDistance(myPos, a.getPosition()) for a in invaders]
             #print(dists)
-            min_index = dists.index(min(dists))
+            features['invaderDistance'] = min(dists) * 10 / (walls.width * walls.height)
+
+        '''min_index = dists.index(min(dists))
             if min(dists) <= 2:
                 if myState.scaredTimer > 0:
                     # beo sam duh
@@ -265,8 +268,7 @@ class SimpleExtractor(FeatureExtractor):
                 if enemies[min_index].isPacman:
                     features['invaderDistance'] = -min(dists) * 2 / (walls.width * walls.height)
                 else:
-                    features['invaderDistance'] = -min(dists) / (walls.width * walls.height)
-
+                    features['invaderDistance'] = -min(dists) / (walls.width * walls.height)'''
         #if action == Directions.STOP: features['stop'] = 1
         #rev = Directions.REVERSE[state.getAgentState(agentIndex).configuration.direction]
         #if action == rev: features['reverse'] = 1
