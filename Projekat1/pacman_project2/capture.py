@@ -392,7 +392,7 @@ def halfList(l, grid, red):
 # You shouldn't need to look through the code in this section of the file. #
 ############################################################################
 
-COLLISION_TOLERANCE = 0.7 # How close ghosts must be to Pacman to kill
+COLLISION_TOLERANCE = 0.4 # How close ghosts must be to Pacman to kill 0.7
 
 class CaptureRules:
   """
@@ -1005,7 +1005,7 @@ def runGames( layouts, agents, display, length, numGames, record, numTraining, r
   games = []
 
   if numTraining > 0:
-    print('Playing %d training games' % numTraining)
+    print('\nPlaying %d training games\n' % numTraining)
 
   for i in range( numGames ):
     beQuiet = i < numTraining
@@ -1019,6 +1019,7 @@ def runGames( layouts, agents, display, length, numGames, record, numTraining, r
         gameDisplay = display
         rules.quiet = False
     g = rules.newGame( layout, agents, gameDisplay, length, muteAgents, catchExceptions )
+    g.isTraining = beQuiet
     g.run()
     if not beQuiet: games.append(g)
 
