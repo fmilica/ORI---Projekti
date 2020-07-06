@@ -8,12 +8,13 @@ from tqdm import tqdm
 import cv2
 from tensorflow.keras.models import Sequential, load_model
 from tensorflow.keras.layers import Conv2D, Activation, Dropout, MaxPooling2D, Flatten, Dense, \
-    LeakyReLU, BatchNormalization
+    LeakyReLU, BatchNormalization, AveragePooling2D
 from tensorflow.keras import regularizers
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.losses import categorical_crossentropy
 from tensorflow.keras.optimizers import Adam, Adadelta, Adamax
 from tensorflow.keras.callbacks import TensorBoard
+from tensorflow.keras import backend as K
 
 '''
 Kako pokretati?
@@ -41,12 +42,21 @@ NUM_CLASSES = 3
 IMG_ROWS, IMG_COLS = 64, 64
 BATCH_SIZE = 32
 EPOCHS = 20
-#64x4-OneDropout-Batch-16
-# mozda je cak pet slojeva bolje
-# X-Ray-CNN-64x5-TwoDropout-Batch-32-l1-0x001
-# sad cemo da dodamo dropout posle svakog
-#BEST_MODEL_NAME = "X-Ray-CNN-64x4-OneDropout-Batch-32-l1-0x001"
-SAVE_MODEL_NAME = "X-Ray-CNN-64x5-OneDropout-Batch-32-l1-0x001"
+
+
+# vird (bolji test od validacije i treninga): X-Ray-CNN-32x4-FourDropout-Batch-32-l1-0x001
+OSOM_MODEL_NAME = "X-Ray-CNN-64x4-ThreeDropout-1x0.3-1x0.4-1x0.5-Batch-32-l1-0x001"
+OSOMER_MODEL_NAME = "X-Ray-CNN-64x4-ThreeDropout-1x0.3-1x0.4-1x0.5-Batch-32-l1-0x001-1xDense-1xDropout-l2-0x001"
+
+SIXT_MODEL_NAME = "X-Ray-CNN-64x4-ThreeDropout-Batch-32-l2-0x001"
+FIFTH_MODEL_NAME = "X-Ray-CNN-64x4-ThreeDropout-Batch-32-l1-0x001-LeakyReLU-0.1"
+FORTH_MODEL_NAME = "X-Ray-CNN-64x4-ThreeDropout-Batch-32-l2-0x001-1xDense-1xDropout-l2-0x001-LeakyReLU-0.1"
+THIRD_MODEL_NAME = "X-Ray-CNN-64x4-FourDropout-Batch-32-l1-0x001"
+SECOND_MODEL_NAME = "X-Ray-CNN-64x4-FourDropout-Batch-32-l1-0x001-1xDense-1xDropout-l2-0x001-LeakyReLU-0.1"
+BEST_MODEL_NAME = "X-Ray-CNN-64x4-ThreeDropout-Batch-32-l1-0x001"
+
+
+SAVE_MODEL_NAME = "X-Ray-CNN-64x4-FourDropout-1x0.2-1x0.3-1x0.4-1x0.5-Batch-32-l1-0x001-1xDense-1xDropout-l2-0x001"
 MODEL_NAME = SAVE_MODEL_NAME + "-{}".format(int(time.time()))
 tensor_board = TensorBoard(log_dir="logs/{}".format(MODEL_NAME))
 
@@ -170,29 +180,40 @@ def pickle_load_train_set():
 def create_model():
     model = Sequential()
 
-    model.add(Conv2D(64, padding="same", kernel_size=(3, 3), input_shape=(IMG_ROWS, IMG_COLS, 1)))
+    model.add(Conv2D(64, padding='same', kernel_size=(3, 3), input_shape=(IMG_ROWS, IMG_COLS, 1)))
     model.add(Activation("relu"))
+    #model.add(LeakyReLU(0.1))
+    model.add(Dropout(0.2))
     model.add(MaxPooling2D(pool_size=(2, 2)))
 
     model.add(Conv2D(64, padding='same', kernel_size=(3, 3)))
     model.add(Activation("relu"))
+    #model.add(LeakyReLU(0.1))
     model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Dropout(0.3))
 
     model.add(Conv2D(64, padding='same', kernel_size=(3, 3)))
     model.add(Activation("relu"))
+    #model.add(LeakyReLU(0.1))
     model.add(MaxPooling2D(pool_size=(2, 2)))
-
+    model.add(Dropout(0.4))
+    '''
     model.add(Conv2D(64, padding='same', kernel_size=(3, 3)))
     model.add(Activation("relu"))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     #model.add(Dropout(0.3))
-
+    '''
     model.add(Conv2D(64, padding='same', kernel_size=(3, 3)))
     model.add(Activation("relu"))
+    #model.add(LeakyReLU(0.1))
     model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.4))
+    model.add(Dropout(0.5))
 
     model.add(Flatten())
+
+    model.add(Dense(64, kernel_regularizer=regularizers.l2(0.001)))
+    model.add(Activation("relu"))
+    model.add(Dropout(0.5))
 
     model.add(Dense(3, kernel_regularizer=regularizers.l1(0.001)))
     model.add(Activation("softmax"))
@@ -217,23 +238,35 @@ def compile_fit_model(model, train_x, train_y):
     model.save(SAVE_MODEL_NAME + '.model')
 
 
-# PREDICTIONS
-def predict_test(test_x, test_y):
-    # load the trained model
-    loaded_model = load_model(SAVE_MODEL_NAME + '.model')
+def f1(y_true, y_pred):
+    def recall(y_true, y_pred):
+        """Recall metric.
 
-    # create predictions for test data
-    predictions = loaded_model.predict([test_x])
+        Only computes a batch-wise average of recall.
 
-    # compare results
-    result = []
-    for prediction, truth in zip(predictions, test_y):
-        # get category index of prediction
-        prediction_category = max(np.where(prediction == max(prediction))[0])
-        # get category index of label
-        truth_category = max(np.where(truth == 1)[0])
-        result.append(1 == truth_category)
-    print(result)
+        Computes the recall, a metric for multi-label classification of
+        how many relevant items are selected.
+        """
+        true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+        possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
+        recall = true_positives / (possible_positives + K.epsilon())
+        return recall
+
+    def precision(y_true, y_pred):
+        """Precision metric.
+
+        Only computes a batch-wise average of precision.
+
+        Computes the precision, a metric for multi-label classification of
+        how many selected items are relevant.
+        """
+        true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+        predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
+        precision = true_positives / (predicted_positives + K.epsilon())
+        return precision
+    precision = precision(y_true, y_pred)
+    recall = recall(y_true, y_pred)
+    return 2*((precision*recall)/(precision+recall+K.epsilon()))
 
 
 if __name__ == '__main__':
@@ -247,22 +280,62 @@ if __name__ == '__main__':
 
     # read preprocessed training and test data
     train_data, train_labels = pickle_load_train_set()
-    #test_data, test_labels = pickle_load_test_set()
+    test_data, test_labels = pickle_load_test_set()
 
     # create CNN model
     cnn_model = create_model()
     compile_fit_model(cnn_model, train_data, train_labels)
 
     # load the trained model
-    #saved_model = load_model(SAVE_MODEL_NAME + '.model')
+    saved_model = load_model(SAVE_MODEL_NAME + '.model')
 
     # evaluacija
-    #test_eval = saved_model.evaluate(test_data, test_labels, verbose=1, batch_size=32)
+    print("CURRENT MODEL - " + SAVE_MODEL_NAME)
+    test_eval = saved_model.evaluate(test_data, test_labels, verbose=1, batch_size=32)
+    print()
+
+    # SIXT BEST MODEL
+    print("SIXT BEST MODEL - " + SIXT_MODEL_NAME)
+    sixt_best_model = load_model(SIXT_MODEL_NAME + '.model')
+    test_eval = sixt_best_model.evaluate(test_data, test_labels, verbose=1, batch_size=32)
+    print()
+
+    # FIFTH BEST MODEL
+    print("FIFTH BEST MODEL - " + FIFTH_MODEL_NAME)
+    fifth_best_model = load_model(FIFTH_MODEL_NAME + '.model')
+    test_eval = fifth_best_model.evaluate(test_data, test_labels, verbose=1, batch_size=32)
+    print()
+
+    # FORTH BEST MODEL
+    print("FORTH BEST MODEL - " + FORTH_MODEL_NAME)
+    forth_best_model = load_model(FORTH_MODEL_NAME + '.model')
+    test_eval = forth_best_model.evaluate(test_data, test_labels, verbose=1, batch_size=32)
+    print()
+
+    # THIRD BEST MODEL
+    print("THIRD BEST MODEL - " + THIRD_MODEL_NAME)
+    third_best_model = load_model(THIRD_MODEL_NAME + '.model')
+    test_eval = third_best_model.evaluate(test_data, test_labels, verbose=1, batch_size=32)
+    print()
+
+    # SECOND BEST MODEL
+    print("SECOND BEST MODEL - " + SECOND_MODEL_NAME)
+    second_best_model = load_model(SECOND_MODEL_NAME + '.model')
+    test_eval = second_best_model.evaluate(test_data, test_labels, verbose=1, batch_size=32)
+    print()
 
     # BEST MODEL
-    #best_model = load_model(BEST_MODEL_NAME + '.model')
-    #test_eval = best_model.evaluate(test_data, test_labels, verbose=1, batch_size=32)
+    print("BEST MODEL - " + BEST_MODEL_NAME)
+    best_model = load_model(BEST_MODEL_NAME + '.model')
+    test_eval = best_model.evaluate(test_data, test_labels, verbose=1, batch_size=32)
 
-    # test CNN model on not-seen-before data
-    # OVDE NESTO NE RADI ALI SADA NE VIDIM TACNO STA
-    #predict_test(test_data, test_labels)
+    # OSOM MODEL
+    print("OSOM MODEL - " + OSOM_MODEL_NAME)
+    osom_model = load_model(OSOM_MODEL_NAME + '.model')
+    test_eval = osom_model.evaluate(test_data, test_labels, verbose=1, batch_size=32)
+
+    # OSOMER MODEL
+    print("OSOMER MODEL - " + OSOMER_MODEL_NAME)
+    osomer_model = load_model(OSOMER_MODEL_NAME + '.model')
+    test_eval = osomer_model.evaluate(test_data, test_labels, verbose=1, batch_size=32)
+

@@ -78,10 +78,10 @@ def cluster_report(data: pd.DataFrame, clusters, min_samples_leaf=50, pruning_le
         report_class_list.append((class_name, combined_string))
 
     cluster_instance_df = pd.Series(clusters).value_counts().reset_index()
-    cluster_instance_df.columns = ['class_name', 'instance_count']
-    report_df = pd.DataFrame(report_class_list, columns=['class_name', 'rule_list'])
-    report_df = pd.merge(cluster_instance_df, report_df, on='class_name', how='left')
-    save_rules(report_df.sort_values(by='class_name')[['class_name', 'instance_count', 'rule_list']])
+    cluster_instance_df.columns = ['cluster_num', 'instance_count']
+    report_df = pd.DataFrame(report_class_list, columns=['cluster_num', 'rule_list'])
+    report_df = pd.merge(cluster_instance_df, report_df, on='cluster_num', how='left')
+    save_rules(report_df.sort_values(by='cluster_num')[['cluster_num', 'instance_count', 'rule_list']])
 
 
 if __name__ == '__main__':
