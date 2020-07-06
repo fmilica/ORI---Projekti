@@ -538,6 +538,7 @@ class Game:
         self.agentTimeout = False
         import io
         self.agentOutput = [io.StringIO() for agent in agents]
+        self.isTraining = None
 
     def getProgress(self):
         if self.gameOver:
