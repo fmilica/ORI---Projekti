@@ -130,8 +130,6 @@ def create_parallel_box_plots(start_data, all_cluster_data):
             col_data_to_plot.append(cluster_data_per_col)
         plot_data(col_data_to_plot, total_cluster_num, col_name)
 
-    print("Parallel box-plots created!")
-
 
 def plot_data(data_to_plot, number_of_clusters, column_name):
     # Create a figure instance
@@ -235,12 +233,10 @@ def describe_clusters():
         min_idxs = [i for i, x in enumerate(value_list) if x == minimum]
         if len(min_idxs) == 1:
             cluster_min_max[min_idxs[0]].append((col_name, minimum, 'min'))
-            # print("Minimum value for " + col_name + " is " + str(minimum) + " in cluster" + str(min_idxs[0]) + ".")
         maximum = max(value_list)
         max_idxs = [i for i, x in enumerate(value_list) if x == maximum]
         if len(max_idxs) == 1:
             cluster_min_max[max_idxs[0]].append((col_name, maximum, 'max'))
-            # print("Maximum value for " + col_name + " is " + str(maximum) + " in cluster" + str(max_idxs[0]) + ".")
 
     # Write characteristics of each cluster to file
     f = open("data/conclusions/conclusion.txt", "w")
@@ -255,23 +251,31 @@ def describe_clusters():
     f.close()
 
 
-if __name__ == '__main__':
+def summarize_data(file_path=data_file_path, matrices=False):
     # initial data statistics
-    initial_data = read_data(data_file_path)
+    initial_data = read_data(file_path)
     initial_data_stats = initial_statistics(initial_data)
     normalized_initial_data_stats = initial_statistics(normalize_data(initial_data))
     # mean, median, quartiles
     clusters_stats = summarize_all_clusters(total_cluster_num)
+    print("Basic statistical analysis create")
+
     compare_all_clusters(normalized_initial_data_stats, clusters_stats)
     # clusters with highest/lowest values
     describe_clusters()
+    print("Cluster statistics compared")
+
     # box-plots
     clusters_data = read_cluster_data(total_cluster_num)
     create_parallel_box_plots(normalize_data(initial_data), clusters_data)
+    print("Parallel box-plots created")
+
     # 2D representation (using PCA algorithm to reduce dimensionality)
     pca_2d_clusters(clusters_data)
 
     # 2D representation (every attribute with every attribute)
-    #create_2d_clusters(clusters_data)
+    if matrices:
+        create_2d_clusters(clusters_data)
+        print("All cluster matrices created")
 
-    print("Summarization completed.")
+    print("Summarization completed")

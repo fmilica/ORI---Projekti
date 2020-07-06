@@ -56,7 +56,7 @@ SECOND_MODEL_NAME = "X-Ray-CNN-64x4-FourDropout-Batch-32-l1-0x001-1xDense-1xDrop
 BEST_MODEL_NAME = "X-Ray-CNN-64x4-ThreeDropout-Batch-32-l1-0x001"
 
 
-SAVE_MODEL_NAME = "X-Ray-CNN-64x4-FourDropout-1x0.2-1x0.3-1x0.4-1x0.5-Batch-32-l1-0x001-1xDense-1xDropout-l2-0x001"
+SAVE_MODEL_NAME = "X-Ray-CNN-64x4-FourDropout-1x0.2-1x0.3-1x0.4-1x0.5-Batch-32-l1-0x001-1xDense-1xDropout-l2-0x001-f1"
 MODEL_NAME = SAVE_MODEL_NAME + "-{}".format(int(time.time()))
 tensor_board = TensorBoard(log_dir="logs/{}".format(MODEL_NAME))
 
@@ -226,7 +226,7 @@ def compile_fit_model(model, train_x, train_y):
     # Compile model
     model.compile(loss=categorical_crossentropy,
                   optimizer=Adam(),
-                  metrics=['accuracy'])
+                  metrics=[f1])
 
     # Train and evaluation
     model.fit(train_x, train_y,
@@ -235,7 +235,7 @@ def compile_fit_model(model, train_x, train_y):
               callbacks=[tensor_board])
 
     # Save the trained model
-    model.save(SAVE_MODEL_NAME + '.model')
+    model.save(SAVE_MODEL_NAME + '.model', custom_objects={'f1':f1})
 
 
 def f1(y_true, y_pred):
@@ -287,7 +287,7 @@ if __name__ == '__main__':
     compile_fit_model(cnn_model, train_data, train_labels)
 
     # load the trained model
-    saved_model = load_model(SAVE_MODEL_NAME + '.model')
+    saved_model = load_model(SAVE_MODEL_NAME + '.model', custom_objects={'f1':f1})
 
     # evaluacija
     print("CURRENT MODEL - " + SAVE_MODEL_NAME)
