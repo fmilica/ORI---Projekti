@@ -79,12 +79,12 @@ class SimpleExtractor(FeatureExtractor):
     def inOtherHalf(self, pos, isRed, walls):
         x, y = pos
         if isRed:
-            if x >= walls.width / 2:
+            if x >= walls.width // 2 - 1:
                 return True
             else:
                 return False
         else:
-            if x <= walls.width / 2:
+            if x <= walls.width // 2 + 1:
                 return True
             else:
                 return False
@@ -93,11 +93,11 @@ class SimpleExtractor(FeatureExtractor):
         x,y = pos
         distance = []
         if isRed:
-            wh = walls.width/2 - 1
+            wh = walls.width //2 - 2
             for xh in range(walls.height):
                 distance.append(manhattanDistance((xh, wh), (x, y)))
         else:
-            wh = walls.width / 2 + 1
+            wh = walls.width // 2 + 2
             for xh in range(walls.height):
                 distance.append(manhattanDistance((xh, wh), (x, y)))
 
@@ -124,20 +124,28 @@ class SimpleExtractor(FeatureExtractor):
 
         features = util.Counter()
 
+        # bazno
+        successor = agent.getSuccessor(state, action)
+        features['successorScore'] = agent.getScore(successor)
+
         if isRed:
             food = state.getBlueFood()
             capsules = state.getBlueCapsules()
             oppon = state.getBlueTeamIndices()
+            oppon2 = []
+            for o in oppon:
+                if not state.getAgentState(o).isPacman:
+                    oppon2.append(o)
             opponents = [state.getAgentPosition(o) for o in oppon]
             greater = True
-            if state.getAgentPosition(agentIndex)[0] > walls.width / 2:
-                features['attack'] = 1.0
-            else:
-                features['attack'] = -0.4
         else:
             food = state.getRedFood()
             capsules = state.getRedCapsules()
             oppon = state.getRedTeamIndices()
+            oppon2 = []
+            for o in oppon:
+                if state.getAgentState(o).isPacman:
+                    oppon2.append(o)
             opponents = [state.getAgentPosition(o) for o in oppon]
             greater = False
 
@@ -147,101 +155,121 @@ class SimpleExtractor(FeatureExtractor):
         next_x, next_y = int(x + dx), int(y + dy)
 
         dists = []
-        for g in ghosts:
-            if g in opponents and self.inOtherHalf((next_x, next_y), isRed, walls) and not self.scaredGhost(state, oppon, g):
-                dists.append(agent.getMazeDistance(g, (next_x, next_y)))
+        for o in oppon2:
+            if self.inOtherHalf((next_x, next_y), isRed, walls) and not self.scaredGhost(state, oppon, state.getAgentPosition(o)):  #
+                dists.append(agent.getMazeDistance(state.getAgentPosition(o), (next_x, next_y)))
+        '''for g in ghosts:
+            if g in opponents and self.inOtherHalf((next_x, next_y), isRed, walls) and not self.scaredGhost(state, oppon, g): 
+                # treba da bezi od njega
+                dists.append(agent.getMazeDistance(g, (next_x, next_y)))'''
 
         dist = closestFood((next_x, next_y), food, walls)
-
         if dist is not None:
             # make the distance a number less than one otherwise the update
             # will diverge wildly
             features["closest-food"] = float(dist)*10 / (walls.width * walls.height)
 
         # count the number of ghosts 1-step away
-        #features["#-of-ghosts-1-step-away"] = sum((next_x, next_y) in Actions.getLegalNeighbors(g, walls) for g in ghosts)
+        features["#-of-ghosts-1-step-away"] = -sum((next_x, next_y) in Actions.getLegalNeighbors(g, walls) for g in ghosts)
 
         # if there is no danger of ghosts then add the food feature
         '''if not features["#-of-ghosts-1-step-away"] and food[next_x][next_y]:
             features["eats-food"] = 1.0'''
 
-        #print(dists)
-        features['ghost-distance'] = -0.01
-        '''for g in ghosts:
-            if g in opponents and (next_x, next_y) in Actions.getLegalNeighbors(g, walls):
-                features['ghost-distance'] = sum((next_x, next_y) in Actions.getLegalNeighbors(g, walls) for g in ghosts)'''
+        '''rev = Directions.REVERSE[state.getAgentState(agentIndex).configuration.direction]
+        if action == rev: features['reverse'] = 1'''
 
-        if len(dists) > 0 and min(dists) < 5:
-            features['ghost-distance'] = -float(min(dists))*10 / (walls.width * walls.height)
-            if len(capsules) > 0:
-                d = manhattanDistance(capsules[0], (next_x, next_y))
-                if d < 5:
-                    features['capsule-distance'] = min(dists)*10 / (walls.width * walls.height)
-            dd = self.closeToHome(isRed, (next_x, next_y), walls)
-            if dd < 8:
-                features['go-back'] = -0.121
+        #ako mu je duh na manje od 5 koraka
+        if len(dists) > 0: #and min(dists) < 2
+            features['ghost-distance'] = -min(dists) * 10 / (walls.width * walls.height)
+            # ako ima hranu nagradjuj povratak
+            if state.getAgentState(agentIndex).numCarrying > 0:
+                if self.closeToHome(isRed, (next_x, next_y), walls) > 0:
+                    features['go-back'] = 10 * state.getAgentState(agentIndex).numCarrying / self.closeToHome(isRed, (next_x, next_y), walls)
+            else:
+                home_distance = self.closeToHome(isRed, (next_x, next_y), walls)
+                #posto mu je duh blizu idi ka kapsuli
+                if len(capsules) > 0:
+                    capsule_distance = manhattanDistance(capsules[0], (next_x, next_y))
+                    if capsule_distance < 5:
+                        features['capsule-distance'] = min(dists)*10 / (walls.width * walls.height)
+                # ili idi ka svojoj polovini
+                else:
+                    if home_distance < 8:
+                        features['go-back'] = 0.8241
+                    else:
+                        features['go-back'] = 0.00021
         else:
-            features['ghost-distance'] = 1.0
+            features['ghost-distance'] = 0.6398
 
-        if state.getAgentState(agentIndex).numCarrying > 0:
-            features['num-carring'] = 0.64
-        else:
-            features['num-carring'] = -0.001
-            d = self.closeToHome(isRed, (next_x, next_y), walls)
-            if d < 8:
-                features['go-back'] = 0.061
-            if len(dists) > 0 and min(dists) < 5:
-                features['go-back'] = 0.0821
-
-        if len(capsules) > 0:
+        #ako vec nije pojedena kapsula
+        '''if len(capsules) > 0:
             d = manhattanDistance(capsules[0], (next_x, next_y))
             if d > 5:
-                features['capsule-distance'] = 0.645
+                features['capsule-distance'] = -0.645
             else:
-                features['capsule-distance'] = -0.361
+                features['capsule-distance'] = 0.361'''
 
         features.divideAll(10.0)
-
         return features
 
 
     def getDeffensiveFeatures(self, successor ,state, action, isRed, agentIndex, agent):
+
         # extract the grid of food and wall locations and get the ghost locations
         walls = state.getWalls()
         myState = successor.getAgentState(agentIndex)
         myPos = myState.getPosition()
         features = util.Counter()
 
+        # bazno
+        features['successorScore'] = agent.getScore(successor)
+
         if isRed:
             oppon = state.getBlueTeamIndices()
             opponents = [state.getAgentPosition(o) for o in oppon]
-            if myPos[0] < (walls.width // 2)- 1:
-                features['stay-on-your-side'] = 0.895
+            if myPos[0] < (walls.width // 2 -1):
+                features['stay-on-your-side'] = 10
             else:
-                features['stay-on-your-side'] = -0.92
+                features['stay-on-your-side'] = -5
 
             #ako nema nikoga na njegovoj strani, prebaci
         else:
             oppon = state.getRedTeamIndices()
             opponents = [state.getAgentPosition(o) for o in oppon]
-            if myPos[0] > (walls.width // 2)- 1:
-                features['stay-on-your-side'] = 0.895
+            if myPos[0] > (walls.width // 2 -1):
+                features['stay-on-your-side'] = 10
             else:
-                features['stay-on-your-side'] = -0.92
+                features['stay-on-your-side'] = -5
         # Computes whether we're on defense (1) or offense (0)
         features['onDefense'] = 1
 
         # Computes distance to invaders we can see
         enemies = [successor.getAgentState(i) for i in oppon]
-        invaders = [a for a in enemies if a.isPacman and a.getPosition() != None]
+        invaders = [a for a in enemies if a.getPosition() != None]
         features['numInvaders'] = len(invaders)
         if len(invaders) > 0:
             dists = [agent.getMazeDistance(myPos, a.getPosition()) for a in invaders]
-            features['invaderDistance'] = min(dists) * 10 / (walls.width * walls.height)
+            #print(dists)
+            min_index = dists.index(min(dists))
+            if min(dists) <= 2:
+                if myState.scaredTimer > 0:
+                    # beo sam duh
+                    features['invaderDistance'] = -min(dists) * 10 / (walls.width * walls.height)
+                else:
+                    if enemies[min_index].isPacman:
+                        features['invaderDistance'] = min(dists) * 20 / (walls.width * walls.height)
+                    else:
+                        features['invaderDistance'] = min(dists) * 5 / (walls.width * walls.height)
+            else:
+                if enemies[min_index].isPacman:
+                    features['invaderDistance'] = -min(dists) * 2 / (walls.width * walls.height)
+                else:
+                    features['invaderDistance'] = -min(dists) / (walls.width * walls.height)
 
-        if action == Directions.STOP: features['stop'] = 1
-        rev = Directions.REVERSE[state.getAgentState(agentIndex).configuration.direction]
-        if action == rev: features['reverse'] = 1
+        #if action == Directions.STOP: features['stop'] = 1
+        #rev = Directions.REVERSE[state.getAgentState(agentIndex).configuration.direction]
+        #if action == rev: features['reverse'] = 1
 
         features.divideAll(10.0)
         return features

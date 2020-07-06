@@ -392,7 +392,7 @@ def halfList(l, grid, red):
 # You shouldn't need to look through the code in this section of the file. #
 ############################################################################
 
-COLLISION_TOLERANCE = 0.4 # How close ghosts must be to Pacman to kill 0.7
+COLLISION_TOLERANCE = 0.7 # How close ghosts must be to Pacman to kill
 
 class CaptureRules:
   """

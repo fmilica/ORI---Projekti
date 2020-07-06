@@ -76,8 +76,9 @@ class ProbaAgent(CaptureAgent):
         self.gamma = float(gamma)
         self.epsilon = float(epsilon)
         self.numTraining = numTraining
-        self.episodes = 0
+        self.episodes = 1
         self.extractor = extractor
+        self.ind = True
 
     def registerInitialState(self, gameState):
         """
@@ -86,10 +87,13 @@ class ProbaAgent(CaptureAgent):
         CaptureAgent.registerInitialState(self, gameState)
 
     def final(self, gameState):
-        if self.episodes < self.numTraining:
-            self.episodes += 1
+        if self.episodes <= self.numTraining:
             print('Training no. %d done' % self.episodes)
-        elif self.episodes == self.numTraining:
+            scores = gameState.data.score
+            print('Score:       ' + str(scores))
+            self.episodes += 1
+        elif self.episodes == self.numTraining and self.ind:
+            self.ind  = False
             print('Training done (turning off alpha and epsilon)')
             self.alpha = 0.0
             self.epsilon = 0.0
@@ -168,7 +172,7 @@ class ProbaAgent(CaptureAgent):
                 action = self.computeActionFromQValues(state)
 
         foodCarry = state.getAgentState(self.index).numCarrying
-        if foodCarry == 5:
+        if foodCarry > 3:
             bestDist = 9999
             bestAction = None
             for action in legalActions:
@@ -189,42 +193,65 @@ class ProbaAgent(CaptureAgent):
     def calculateReward(self, state, nextState):
         reward = -1
 
-        if state.getAgentState(self.index).numCarrying:
-            reward += 2
+        #pokupio je novu hranu
+        p = nextState.getAgentState(self.index).numCarrying - state.getAgentState(self.index).numCarrying
+        if p > 0:
+            reward += 1
+            print('pojeo je hranu')
+
+        #p = nextState.getAgentState(self.index).numCarrying - state.getAgentState(self.index).numCarrying
+        #print('---------------------')
+        #print('state %d' % state.getAgentState(self.index).numReturned)
+        #print('next state %d' % nextState.getAgentState(self.index).numReturned)
+        #if state.getAgentState(self.index).numCarrying > 0 and nextState.getAgentState(self.index).numCarrying == 0:
+        # koliko je vratio toliko je nagradjen
+        reward += state.getAgentState(self.index).numReturned * 0.1
+
+        # pojeden je
+        s = state.getAgentPosition(self.index)
+        ns = nextState.getAgentPosition(self.index)
+
+        if manhattanDistance(nextState.getAgentPosition(self.index), state.getAgentPosition(self.index)) > 1:
+            print('pojeden je')
+            reward -= 7
+
 
         if self.isOnRedTeam():
             firstHalf = True
             oppon = state.getBlueTeamIndices()
             opponents = [nextState.getAgentPosition(o) for o in oppon]
+
+            #presao je na suprotnu polovinu
             if state.getAgentPosition(self.index)[0] > state.getWalls().width/2:
-                reward += 3
+                reward += 0.001
+            #pokupio je kapsulu
             if len(state.getBlueCapsules()) != len(nextState.getBlueCapsules()):
                 reward += 5
-            if state.getAgentState(self.index).numCarrying and (state.getAgentPosition(self.index)[0] < state.getWalls().width/2 - 1):
-                reward += 5
+                print('pojeo je kapsulu')
+            #if state.getAgentState(self.index).numCarrying and (state.getAgentPosition(self.index)[0] < state.getWalls().width/2 - 1):
+                #reward += 5
         else:
             firstHalf = False
             oppon = state.getRedTeamIndices()
             opponents = [nextState.getAgentPosition(o) for o in oppon]
+            #presao je na suprotnu polovinu
             if state.getAgentPosition(self.index)[0] < state.getWalls().width/2:
-                reward += 3
+                reward += 0.001
+            #pokupio je kapsulu
             if len(state.getRedCapsules()) != len(nextState.getRedCapsules()):
                 reward += 5
-            if state.getAgentState(self.index).numCarrying and (state.getAgentPosition(self.index)[0] > state.getWalls().width/2 + 1):
-                reward += 5
-        if state.data._foodEaten is not None:
-            reward += 2
+                print('pojeo je kapsulu')
+            #if state.getAgentState(self.index).numCarrying and (state.getAgentPosition(self.index)[0] > state.getWalls().width/2 + 1):
+                #reward += 5
 
-        ghosts = nextState.getGhostPositions()
+        ghosts = state.getGhostPositions()
         for g in ghosts:
             if g in opponents:
-                #print('razdaljina %f' % manhattanDistance(g, nextState.getAgentPosition(self.index)))
-                if manhattanDistance(g, nextState.getAgentPosition(self.index)) <= 1:
-                    if self.scaredGhost(nextState, oppon, g):
-                        reward += 5
-                    else:
-                        reward -= 7
-
+                #print(manhattanDistance(g, state.getAgentState(self.index).getPosition()))
+                if manhattanDistance(g, state.getAgentState(self.index).getPosition()) < 1:
+                    print("POJEO SAM GOVNO")
+                    reward -= 5
+        #print(reward)
         return reward
 
     def scaredGhost(self, state, opponents, pos):
@@ -412,27 +439,54 @@ class ProbaDefensiveAgent(CaptureAgent):
 
         if self.isOnRedTeam():
             oppon = state.getBlueTeamIndices()
-            opponents = [nextState.getAgentPosition(o) for o in oppon]
+            opponents = []
+            for o in oppon:
+                if nextState.getAgentState(o).isPacman:
+                    opponents.append(nextState.getAgentPosition(o))
+            #opponents = [nextState.getAgentPosition(o) for o in oppon]
+            # kazna ako predje
+            if state.getAgentPosition(self.index)[0] > state.getWalls().width // 2:
+                reward -= 5
+            # protivnik pojeo hranu
+            food = nextState.getRedFood()
+            for pos in opponents:
+                if food[pos[0]][pos[1]]:
+                    reward -= 1
         else:
             oppon = state.getRedTeamIndices()
-            opponents = [nextState.getAgentPosition(o) for o in oppon]
+            opponents = []
+            for o in oppon:
+                if nextState.getAgentState(o).isPacman:
+                    opponents.append(nextState.getAgentPosition(o))
+            #opponents = [nextState.getAgentPosition(o) for o in oppon]
+            # kazna ako predje
+            if state.getAgentPosition(self.index)[0] < state.getWalls().width // 2:
+                reward -= 5
+            # protivnik pojeo hranu
+            food = nextState.getBlueFood()
+            for pos in opponents:
+                if food[pos[0]][pos[1]]:
+                    reward -= 1
 
         for o in oppon:
-            if state.getAgentState(o).isPacman:
-                '''if state.getAgentState(o).numCarrying > 0:
-                    reward -= 3
-                el'''
-                if state.getAgentState(o).numReturned > 0:
-                    reward -= state.getAgentState(o).numReturned * 2
+            '''if state.getAgentState(o).numCarrying > 0:
+                reward -= 3
+            el'''
+            if state.getAgentState(o).numReturned > 0:
+                reward -= state.getAgentState(o).numReturned * 2
 
+        #print('-----------------------------')
         for g in opponents:
-            if manhattanDistance(g, nextState.getAgentPosition(self.index)) <= 1:
+            #print(self.getMazeDistance(g, state.getAgentPosition(self.index)))
+            #print(self.getMazeDistance(g, nextState.getAgentPosition(self.index)))
+            if self.getMazeDistance(g, nextState.getAgentPosition(self.index)) <= 1:
                 if myGhost.scaredTimer > 0:
+                    print("pojeo ga je")
                     reward -= 6
                 else:
+                    print("pojeo je pekmena")
                     reward += 10
-
-        #print(reward)
+        #print('-----------------------------')
         return reward
 
     def scaredGhost(self, state, opponents, pos):
